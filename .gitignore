@@ -3,7 +3,6 @@
 Thumbs.db
 /.idea
 /.vscode
-/phpunit.xml
 .php_cs
 .php_cs.cache
 .phpunit.result.cache
