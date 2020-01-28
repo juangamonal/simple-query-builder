@@ -25,11 +25,11 @@ final class BuilderTest extends TestCase
         new Builder('table');
 
         // a través de create
-        Builder::create('table');
+        Builder::table('table');
 
         // nombre inválido
         $this->expectException(InvalidArgumentException::class);
-        Builder::create('invalid.table');
+        Builder::table('invalid.table');
     }
 
     /**
@@ -54,7 +54,7 @@ final class BuilderTest extends TestCase
     public function testSelect()
     {
         // prueba con la columna por defecto '*'
-        $builder = Builder::create('table');
+        $builder = Builder::table('table');
         $builder->select();
         $this->assertCount(1, $builder->getColumns());
 
@@ -78,7 +78,7 @@ final class BuilderTest extends TestCase
      */
     public function testAddSelect()
     {
-        $builder = Builder::create('table');
+        $builder = Builder::table('table');
         $builder->select('one', 'two');
 
         $this->assertCount(2, $builder->getColumns());
@@ -98,15 +98,20 @@ final class BuilderTest extends TestCase
      */
     public function testInsert()
     {
+        // insert básico
+        $builder = Builder::table('tablename')
+            ->insert(
+                ['column_one' => 'value_one']
+            );
 
+        $this->assertCount(1, $builder->getInserts());
+
+        // añade dos inserts más
+        $builder->insert(['column_one' => 'value_two', 'column_two' => null])
+            ->insert(['column_one' => 'value_three', 'column_three' => 10]);
+
+        $this->assertCount(3, $builder->getInserts());
     }
-
-    /**
-     * Prueba el método ->addInsert()
-     *
-     * @return void
-     */
-    public function testAddInsert(){}
 
     // TODO: pruebas arriba de esto
     // TODO: abajo los privados
@@ -119,7 +124,7 @@ final class BuilderTest extends TestCase
     public function testGetSelectSql()
     {
         // select por defecto
-        $builder = Builder::create('tablename');
+        $builder = Builder::table('tablename');
         $sql = 'SELECT * FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
 

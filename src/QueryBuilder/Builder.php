@@ -101,17 +101,6 @@ final class Builder
     public function addSelect(string ...$statements): self
     {
         $this->type = self::SELECT;
-
-        foreach ($statements as $statement) {
-            $statement = trim($statement);
-
-            if (!preg_match(Regex::SELECT, $statement)) {
-                throw new InvalidArgumentException();
-            }
-
-            array_push($this->columns, $statement);
-        }
-
         $this->columns = array_merge($this->columns, Validator::select($statements));
 
         return $this;
@@ -124,28 +113,13 @@ final class Builder
     }
 
     /**
-     * Ordena una inserción de una fila
-     *
-     * @param array $values Llave-valor para columna y valor
-     *
-     * @return $this
-     */
-    public function insert(array $values): self
-    {
-        $this->type = self::INSERT;
-        $this->inserts = [Validator::insert($values)];
-
-        return $this;
-    }
-
-    /**
      * Añade una inserción de una fila
      *
      * @param array $values Llave-valor para columna y valor
      *
      * @return $this
      */
-    public function addInsert(array $values): self
+    public function insert(array $values): self
     {
         $this->type = self::INSERT;
         array_push($this->inserts, Validator::insert($values));
@@ -236,13 +210,23 @@ final class Builder
     }
 
     /**
+     * Obtiene listado de filas para 'INSERT'
+     *
+     * @return array
+     */
+    public function getInserts(): array
+    {
+        return $this->inserts;
+    }
+
+    /**
      * Crea una nueva instancia de Query Builder
      *
      * @param string|null $table Nombre de la tabla
      *
      * @return self
      */
-    public static function create(string $table = null): self
+    public static function table(string $table = null): self
     {
         return new self(
             $table,
