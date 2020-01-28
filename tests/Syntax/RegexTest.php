@@ -102,6 +102,32 @@ final class RegexTest extends TestCase
      */
     public function testInsert()
     {
+        // inserts válidos
+        $statements = [
+            'column',
+            'column_name',
+            'column_1'
+        ];
 
+        foreach ($statements as $statement) {
+            $this->assertEquals(
+                true,
+                preg_match(Regex::INSERT, $statement)
+            );
+        }
+
+        // inserts inválidos
+        $statements = [
+            'invalid syntax',
+            '_invalid',
+            'invalid_'
+        ];
+
+        foreach ($statements as $statement) {
+            $this->assertEquals(
+                false,
+                preg_match(Regex::INSERT, $statement)
+            );
+        }
     }
 }
