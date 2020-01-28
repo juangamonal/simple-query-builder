@@ -101,6 +101,11 @@ final class BuilderTest extends TestCase
 
     }
 
+    /**
+     * Prueba el método ->addInsert()
+     *
+     * @return void
+     */
     public function testAddInsert(){}
 
     // TODO: pruebas arriba de esto
@@ -114,19 +119,19 @@ final class BuilderTest extends TestCase
     public function testGetSelectSql()
     {
         // select por defecto
-        $builder = Builder::create('table');
-        $sql = "SELECT * FROM table";
+        $builder = Builder::create('tablename');
+        $sql = 'SELECT * FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
 
         // select con un par de columnas
         $builder->select('one', 'two');
-        $sql = "SELECT one, two FROM table";
+        $sql = 'SELECT one, two FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
 
         // select con addSelect()
         $builder->select('one', 'two')
             ->addSelect('three');
-        $sql = "SELECT one, two, three FROM table";
+        $sql = 'SELECT one, two, three FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
 
         // TODO: select con distinct
