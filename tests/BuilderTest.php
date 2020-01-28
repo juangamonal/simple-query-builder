@@ -88,6 +88,21 @@ final class BuilderTest extends TestCase
         $this->assertCount(4, $builder->getColumns());
     }
 
+    // TODO: hacer
+    // public function addDistinct()
+
+    /**
+     * Prueba el método ->insert()
+     *
+     * @return void
+     */
+    public function testInsert()
+    {
+
+    }
+
+    public function testAddInsert(){}
+
     // TODO: pruebas arriba de esto
     // TODO: abajo los privados
 

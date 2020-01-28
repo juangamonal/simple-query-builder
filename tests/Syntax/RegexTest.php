@@ -94,4 +94,14 @@ final class RegexTest extends TestCase
             );
         }
     }
+
+    /**
+     * Prueba que la expresión de 'Insert' valide correctamente
+     *
+     * @return void
+     */
+    public function testInsert()
+    {
+
+    }
 }

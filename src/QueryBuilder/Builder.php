@@ -4,6 +4,7 @@ namespace QueryBuilder;
 
 use InvalidArgumentException;
 use QueryBuilder\Syntax\Regex;
+use QueryBuilder\Syntax\Validator;
 
 /**
  * Class Builder
@@ -23,6 +24,7 @@ final class Builder
     private $table;
     private $columns = ['*'];
     private $joins = [];
+    private $inserts = [[]];
     private $wheres = [];
     private $groupBy = [];
     private $orderBy = [];
@@ -84,15 +86,7 @@ final class Builder
             $statements = ['*'];
         }
 
-        foreach ($statements as $statement) {
-            $statement = trim($statement);
-
-            if (!preg_match(Regex::SELECT, $statement)) {
-                throw new InvalidArgumentException();
-            }
-
-            array_push($this->columns, $statement);
-        }
+        $this->columns = Validator::select($statements);
 
         return $this;
     }
@@ -118,17 +112,57 @@ final class Builder
             array_push($this->columns, $statement);
         }
 
+        $this->columns = array_merge($this->columns, Validator::select($statements));
+
         return $this;
     }
 
+    // TODO: hacer distinct
     public function distinct(): self
     {
         return $this;
     }
 
-    public function insert(): self
+    /**
+     * Ordena una inserción de una fila
+     *
+     * @param array $values Llave-valor para columna y valor
+     *
+     * @return $this
+     */
+    public function insert(array $values): self
     {
+        $this->type = self::INSERT;
+        $this->inserts = [Validator::insert($values)];
+
         return $this;
+    }
+
+    /**
+     * Añade una inserción de una fila
+     *
+     * @param array $values Llave-valor para columna y valor
+     *
+     * @return $this
+     */
+    public function addInsert(array $values): self
+    {
+        $this->type = self::INSERT;
+        array_push($this->inserts, Validator::insert($values));
+
+        return $this;
+    }
+
+    // TODO añade columns para insert
+    public function columns(): self
+    {
+
+    }
+
+    // TODO añade values para columns para insert
+    public function values(): self
+    {
+
     }
 
     public function update(): self
