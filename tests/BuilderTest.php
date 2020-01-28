@@ -92,6 +92,48 @@ final class BuilderTest extends TestCase
     // public function addDistinct()
 
     /**
+     * Prueba el método ->count()
+     *
+     * @return void
+     */
+    public function testCount()
+    {
+        // prueba con la columna por defecto '*'
+        $builder = Builder::table('table');
+        $builder->count();
+        $this->assertCount(1, $builder->getCounts());
+
+        // todavía debería haber uno
+        $builder->count('column');
+        $this->assertCount(1, $builder->getCounts());
+
+        // añade múltiples count
+        $builder->count('column_one', 'column_two', 'column_three');
+        $this->assertCount(3, $builder->getCounts());
+
+        // error: nombre inválido
+        $this->expectException(InvalidArgumentException::class);
+        $builder->count('invalid name');
+    }
+
+    /**
+     * Prueba el método ->addCount()
+     *
+     * @return void
+     */
+    public function testAddCount()
+    {
+        $builder = Builder::table('table');
+        $builder->count('one', 'two');
+
+        $this->assertCount(2, $builder->getCounts());
+
+        $builder->addCount('three', 'four');
+
+        $this->assertCount(4, $builder->getCounts());
+    }
+
+    /**
      * Prueba el método ->insert()
      *
      * @return void
@@ -104,11 +146,11 @@ final class BuilderTest extends TestCase
                 ['column_one' => 'value_one']
             );
 
-        $this->assertCount(1, $builder->getInserts());
+        $this->assertCount(1, $builder->getInsert());
 
         // intenta añadir nuevos inserts a la consulta, queda en uno ya que cada llamada sobreescribe a la anterior
         $builder->insert(['column_two' => 'value_two']);
         $builder->insert(['column_three' => 'value_three']);
-        $this->assertCount(1, $builder->getInserts());
+        $this->assertCount(1, $builder->getInsert());
     }
 }

@@ -28,6 +28,7 @@ final class Builder
 
     /**
      * Instancia de conexión a la base de datos
+     *
      * @var ConnectionInterface
      */
     private $connection;
@@ -48,9 +49,17 @@ final class Builder
 
     /**
      * Indica si 'SELECT' utilizará 'DISTINCT'
+     *
      * @var bool
      */
     private $distinct = false;
+
+    /**
+     * Listado de columnas para hacer 'SELECT COUNT'
+     *
+     * @var array
+     */
+    private $counts = [];
 
     /**
      * Listado de 'JOIN' para hacer 'SELECT'
@@ -114,7 +123,7 @@ final class Builder
                 return $this->getDeleteSql();
             case self::SELECT:
             default:
-                return $this->getSelectSql();
+                return $this->getSelectSql(count($this->counts) > 0);
         }
     }
 
@@ -163,6 +172,42 @@ final class Builder
     {
         $this->type = self::SELECT;
         $this->distinct = true;
+
+        return $this;
+    }
+
+    /**
+     * Asigna columnas para realizar 'SELECT COUNT'
+     *
+     * @param mixed $statements,... Declaraciones para realizar 'SELECT COUNT'
+     *
+     * @return $this
+     */
+    public function count(string ...$statements): self
+    {
+        $this->counts = [];
+        $this->type = self::SELECT;
+
+        if (count($statements) === 0) {
+            $statements = ['*'];
+        }
+
+        $this->counts = Validator::select($statements);
+
+        return $this;
+    }
+
+    /**
+     * Añade columnas para realizar 'SELECT COUNT'
+     *
+     * @param mixed $statements,... Declaraciones para realizar 'SELECT COUNT'
+     *
+     * @return $this
+     */
+    public function addCount(string ...$statements): self
+    {
+        $this->type = self::SELECT;
+        $this->counts = array_merge($this->counts, Validator::select($statements));
 
         return $this;
     }
@@ -243,16 +288,6 @@ final class Builder
     }
 
     /**
-     * Obtiene listado de filas para 'INSERT'
-     *
-     * @return array
-     */
-    public function getInserts(): array
-    {
-        return $this->insert;
-    }
-
-    /**
      * Obtiene listado de columnas para 'SELECT'
      *
      * @return array
@@ -260,6 +295,26 @@ final class Builder
     public function getSelects(): array
     {
         return $this->selects;
+    }
+
+    /**
+     * Obtiene listado de columnas para 'SELECT COUNT'
+     *
+     * @return array
+     */
+    public function getCounts(): array
+    {
+        return $this->counts;
+    }
+
+    /**
+     * Obtiene listado de filas para 'INSERT'
+     *
+     * @return array
+     */
+    public function getInsert(): array
+    {
+        return $this->insert;
     }
 
     /**
@@ -280,9 +335,11 @@ final class Builder
     /**
      * Genera consulta SQL para un SELECT
      *
+     * @param bool $count Verifica si debe preparar la consulta para un 'COUNT'
+     *
      * @return string
      */
-    private function getSelectSql(): string
+    private function getSelectSql(bool $count = false): string
     {
         // TODO: debe validar que tenga al menos una columna?
 
@@ -294,7 +351,18 @@ final class Builder
         }
 
         // añade columnas
-        $query .= ' ' . implode(', ', $this->selects);
+        if ($count) {
+            // en caso de ser count...
+            foreach (array_values($this->counts) as $index => $count) {
+                // TODO: verifica si el count tiene 'as'
+                $query .= " COUNT($count)";
+                // $query .= ' as ';
+                $query .= $index < (count($this->counts) - 1) ? ',': '';
+            }
+        }else {
+            // en caso de ser select normal...
+            $query .= ' ' . implode(', ', $this->selects);
+        }
 
         // añade 'from'
         $query .= ' FROM ' . $this->table;

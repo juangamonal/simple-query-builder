@@ -50,6 +50,46 @@ final class BuilderSqlGeneratorTest extends TestCase
     }
 
     /**
+     * Prueba el método ->getCountSql()
+     *
+     * @return void
+     */
+    public function testGetCountSql()
+    {
+        // count por defecto
+        $builder = Builder::table('tablename')
+            ->count();
+        $sql = 'SELECT COUNT(*) FROM tablename';
+        $this->assertEquals($sql, $builder->toSql());
+
+        // count con un par de columnas
+        $builder->count('one', 'two');
+        $sql = 'SELECT COUNT(one), COUNT(two) FROM tablename';
+        $this->assertEquals($sql, $builder->toSql());
+
+        // TODO: count con alias
+
+        // count con addCount()
+        /*
+        $builder->select('one', 'two')
+            ->addSelect('three');
+        $sql = 'SELECT one, two, three FROM tablename';
+        $this->assertEquals($sql, $builder->toSql());
+
+        // count con distinct
+        $builder->select('one', 'two')
+            ->distinct();
+        $sql = 'SELECT DISTINCT one, two FROM tablename';
+        $this->assertEquals($sql, $builder->toSql());
+        */
+
+        // TODO: select con where
+        // TODO: select con groupBy
+        // TODO: select con having
+        // TODO: select con orderBy
+    }
+
+    /**
      * Prueba el método ->getInsertSql()
      *
      * @return void
