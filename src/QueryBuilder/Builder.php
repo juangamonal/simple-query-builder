@@ -19,14 +19,75 @@ final class Builder
     public const UPDATE = 2;
     public const DELETE = 3;
 
+    /**
+     * Tipo de Query según las constantes de arriba
+     *
+     * @var int
+     */
     private $type = self::SELECT;
+
+    /**
+     * Instancia de conexión a la base de datos
+     * @var ConnectionInterface
+     */
     private $connection;
+
+    /**
+     * Nombre de la tabla
+     *
+     * @var string|null
+     */
     private $table;
-    private $columns = ['*'];
+
+    /**
+     * Listado de columnas para hacer 'SELECT'
+     *
+     * @var array
+     */
+    private $selects = ['*'];
+
+    /**
+     * Indica si 'SELECT' utilizará 'DISTINCT'
+     * @var bool
+     */
     private $distinct = false;
+
+    /**
+     * Listado de 'JOIN' para hacer 'SELECT'
+     *
+     * @var array
+     */
     private $joins = [];
-    private $inserts = [[]];
+
+    /**
+     * Matriz con datos para la inserción masiva
+     *
+     * @var array
+     */
+    private $inserts = [];
+
+    /**
+     * Columnas a insertar a través de la declaración 'INSERT'
+     *
+     * @var array
+     */
+    private $columns = [];
+
+    /**
+     * Valores a mapear en las columnas para la declaración 'INSERT'
+     *
+     * @var array
+     */
+    private $values = [];
+
+    /**
+     * Listado de condiciones para ejecutar 'SELECT', 'UPDATE' y 'DELETE'
+     *
+     * @var array
+     */
     private $wheres = [];
+
+    // TODO: documentar
     private $groupBy = [];
     private $orderBy = [];
 
@@ -80,14 +141,14 @@ final class Builder
      */
     public function select(string ...$statements): self
     {
-        $this->columns = [];
+        $this->selects = [];
         $this->type = self::SELECT;
 
         if (count($statements) === 0) {
             $statements = ['*'];
         }
 
-        $this->columns = Validator::select($statements);
+        $this->selects = Validator::select($statements);
 
         return $this;
     }
@@ -102,21 +163,26 @@ final class Builder
     public function addSelect(string ...$statements): self
     {
         $this->type = self::SELECT;
-        $this->columns = array_merge($this->columns, Validator::select($statements));
+        $this->selects = array_merge($this->selects, Validator::select($statements));
 
         return $this;
     }
 
-    // TODO: hacer distinct
+    /**
+     * Añade la marca de 'DISTINCT' para añadirla a consulta
+     *
+     * @return $this
+     */
     public function distinct(): self
     {
+        $this->type = self::SELECT;
         $this->distinct = true;
 
         return $this;
     }
 
     /**
-     * Añade una inserción de una fila
+     * Añade una fila para nueva inserción
      *
      * @param array $values Llave-valor para columna y valor
      *
@@ -126,6 +192,34 @@ final class Builder
     {
         $this->type = self::INSERT;
         array_push($this->inserts, Validator::insert($values));
+
+        return $this;
+    }
+
+    /**
+     * Añade columnas para nueva inserción
+     *
+     * @param mixed $columns,... Columnas a añadir
+     * @return $this
+     */
+    public function columns(string ...$columns): self
+    {
+        $this->type = self::INSERT;
+        $selects = Validator::columns($columns);
+
+        foreach ($selects as $select) {
+            if (!array_key_exists($select, $this->columns)) {
+                $this->columns[$select] = $select;
+            }
+        }
+
+        return $this;
+    }
+
+    // TODO: docs
+    public function values(string ...$values): self
+    {
+        $this->type = self::INSERT;
 
         return $this;
     }
@@ -191,7 +285,7 @@ final class Builder
     }
 
     /**
-     * Obtiene listado de columnas para 'SELECT'
+     * Obtiene listado de columnas para 'INSERT'
      *
      * @return array
      */
@@ -208,6 +302,16 @@ final class Builder
     public function getInserts(): array
     {
         return $this->inserts;
+    }
+
+    /**
+     * Obtiene listado de columnas para 'SELECT'
+     *
+     * @return array
+     */
+    public function getSelects(): array
+    {
+        return $this->selects;
     }
 
     /**

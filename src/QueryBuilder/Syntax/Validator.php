@@ -55,7 +55,7 @@ final class Validator
             foreach ($values as $column => $value) {
                 $column = trim($column);
 
-                if (!is_string($column) || !preg_match(Regex::INSERT, $column)) {
+                if (!preg_match(Regex::COLUMN_NAME, $column)) {
                     throw new InvalidArgumentException();
                 }
 
@@ -67,5 +67,27 @@ final class Validator
             // TODO: indicar que no es array asociativo?
             throw new InvalidArgumentException();
         }
+    }
+
+    /**
+     * Valida nuevas columnas añadidas al 'Insert'
+     *
+     * @param array $columns Columnas a insertar
+     *
+     * @return array
+     */
+    public static function columns(array $columns)
+    {
+        foreach ($columns as $i => $column) {
+            $column = trim($column);
+
+            if (!preg_match(Regex::COLUMN_NAME, $column)) {
+                throw new InvalidArgumentException();
+            }
+
+            $columns[$i] = $column;
+        }
+
+        return $columns;
     }
 }

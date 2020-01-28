@@ -112,7 +112,7 @@ final class RegexTest extends TestCase
         foreach ($statements as $statement) {
             $this->assertEquals(
                 true,
-                preg_match(Regex::INSERT, $statement)
+                preg_match(Regex::COLUMN_NAME, $statement)
             );
         }
 
@@ -126,7 +126,7 @@ final class RegexTest extends TestCase
         foreach ($statements as $statement) {
             $this->assertEquals(
                 false,
-                preg_match(Regex::INSERT, $statement)
+                preg_match(Regex::COLUMN_NAME, $statement)
             );
         }
     }

@@ -106,12 +106,35 @@ final class BuilderTest extends TestCase
 
         $this->assertCount(1, $builder->getInserts());
 
-        // añade dos inserts más
-        $builder->insert(['column_one' => 'value_two', 'column_two' => null])
-            ->insert(['column_one' => 'value_three', 'column_three' => 10]);
-
+        // intenta añadir nuevos inserts a la consulta
+        $builder->insert(['column_two' => 'value_two']);
+        $builder->insert(['column_three' => 'value_three']);
         $this->assertCount(3, $builder->getInserts());
     }
+
+    /**
+     * Prueba el método ->columns()
+     *
+     * @return void
+     */
+    public function testColumns()
+    {
+        // añade nuevas columnas
+        $builder = Builder::table('tablename')
+            ->columns('name', 'email', 'password');
+
+        $this->assertCount(3, $builder->getColumns());
+
+        // añade aún más columnas
+        $builder->columns('status', 'created_at');
+        $this->assertCount(5, $builder->getColumns());
+
+        // si se pasa por parámetro una columna ya añadida, ésta se omite, por ende solo debería haber una columna nueva
+        $builder->columns('status', 'updated_at');
+        $this->assertCount(6, $builder->getColumns());
+    }
+
+    // public function testValues(){}
 
     // TODO: pruebas arriba de esto
     // TODO: abajo los privados
