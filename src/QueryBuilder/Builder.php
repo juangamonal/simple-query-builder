@@ -23,6 +23,7 @@ final class Builder
     private $connection;
     private $table;
     private $columns = ['*'];
+    private $distinct = false;
     private $joins = [];
     private $inserts = [[]];
     private $wheres = [];
@@ -109,6 +110,8 @@ final class Builder
     // TODO: hacer distinct
     public function distinct(): self
     {
+        $this->distinct = true;
+
         return $this;
     }
 
@@ -125,18 +128,6 @@ final class Builder
         array_push($this->inserts, Validator::insert($values));
 
         return $this;
-    }
-
-    // TODO añade columns para insert
-    public function columns(): self
-    {
-
-    }
-
-    // TODO añade values para columns para insert
-    public function values(): self
-    {
-
     }
 
     public function update(): self
@@ -245,7 +236,10 @@ final class Builder
 
         $query = 'SELECT';
 
-        // TODO: añade distinct
+        // añade distinct
+        if ($this->distinct) {
+            $query .= ' DISTINCT';
+        }
 
         // añade columnas
         $query .= ' ' . implode(', ', $this->columns);

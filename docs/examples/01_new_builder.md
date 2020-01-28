@@ -3,30 +3,30 @@
 
 use QueryBuilder\Builder;
 
-// builder totalmente vacío
+// builder totalmente vacÃ­o
 $builder = new Builder();
 
 // builder con una tabla por defecto
 $builder = new Builder('nombretabla');
 
 // alternativa...
-$builder = Builder::create('nombretabla');
+$builder = Builder::table('nombretabla');
 ```
 
-La última opción es recomendada cuando se desea encadenar métodos, por ejemplo:
+La Ãºltima opciÃ³n es recomendada cuando se desea encadenar mÃ©todos, por ejemplo:
 
 ```php
 <?php
 
 use QueryBuilder\Builder;
 
-// permite encadenar métodos
-$builder = Builder::create('nombretabla')
+// permite encadenar mÃ©todos
+$builder = Builder::table('nombretabla')
     ->select('columna')
     ->where(...);
 ```
 
-Por defecto cuando no se especifica una conexión, Query Builder utilizará la conexión <b>*default*</b> del proyecto. Una conexión válida debe implementar la interfaz `QueryBuilder\ConnectionInterface`:
+Por defecto cuando no se especifica una conexiÃ³n, Query Builder utilizarÃ¡ la conexiÃ³n <b>*default*</b> del proyecto. Una conexiÃ³n vÃ¡lida debe implementar la interfaz `QueryBuilder\ConnectionInterface`:
 
 ```php
 <?php

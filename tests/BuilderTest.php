@@ -139,7 +139,12 @@ final class BuilderTest extends TestCase
         $sql = 'SELECT one, two, three FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
 
-        // TODO: select con distinct
+        // select con distinct
+        $builder->select('one', 'two')
+            ->distinct();
+        $sql = 'SELECT DISTINCT one, two FROM tablename';
+        $this->assertEquals($sql, $builder->toSql());
+
         // TODO: select con where
         // TODO: select con groupBy
         // TODO: select con having

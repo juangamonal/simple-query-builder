@@ -1,27 +1,35 @@
 ```php
 # consulta la columna 'column_name' de la tabla 'table'
-$builder = Builder::create('table')
+$builder = Builder::table('table')
     ->select('column_name');
 
-# selecciona múltiples columnas (name, email y created_at) de la tabla 'users'
-$builder = Builder::create('users')
+# selecciona mÃºltiples columnas (name, email y created_at) de la tabla 'users'
+$builder = Builder::table('users')
     ->select('name', 'email', 'created_at');
 
-# añade un alias a la columna name
-$builder = Builder::create('users')
+# aÃ±ade un alias a la columna name
+$builder = Builder::table('users')
     ->select('name as nombre');
 ```
 
-Llamar por segunda vez al método `select()` **sobreescribirá** el listado de columnas. Para añadir más columnas a la consulta utiliza el método `addSelect()`:
+Llamar por segunda vez al mÃ©todo `select()` **sobreescribirÃ¡** el listado de columnas. Para aÃ±adir mÃ¡s columnas a la consulta utiliza el mÂ´rtodo `addSelect()`:
 
 ```php
-# solo consultará la columna 'three'
-$builder = Builder::create('table')
+# solo consultarÃ¡ la columna 'three'
+$builder = Builder::table('table')
     ->select('one', 'two')
     ->select('three');
 
-# contendrá las columnas 'one', 'two' y 'three'
-$builder = Builder::create('table')
+# contendrÃ¡ las columnas 'one', 'two' y 'three'
+$builder = Builder::table('table')
     ->select('one', 'two')
     ->addSelect('third');
+```
+
+Se puede hacer uso de la declaraciÃ³n SQL `DISTINCT` para evitar valores repetidos, a travÃ©s del mÃ©todo `distinct()`:
+
+```php
+$builder = Builder::table('table')
+    ->select('one', 'two')
+    ->distinct();
 ```
