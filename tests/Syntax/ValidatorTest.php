@@ -55,21 +55,4 @@ final class ValidatorTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         Validator::insert(['_invalid' => 'value_one']);
     }
-
-    /**
-     * Prueba la validación de las columnas en 'INSERT'
-     *
-     * @return void
-     */
-    public function testColumns()
-    {
-        // insert correcto
-        $valid = ['value_one', 'value_two'];
-        $this->assertEquals($valid, Validator::columns($valid));
-
-        // error al tener nombre de columna inválida
-        $invalid = ['_invalid'];
-        $this->expectException(InvalidArgumentException::class);
-        Validator::columns($invalid);
-    }
 }

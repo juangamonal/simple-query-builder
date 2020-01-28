@@ -64,21 +64,7 @@ final class Builder
      *
      * @var array
      */
-    private $inserts = [];
-
-    /**
-     * Columnas a insertar a través de la declaración 'INSERT'
-     *
-     * @var array
-     */
-    private $columns = [];
-
-    /**
-     * Valores a mapear en las columnas para la declaración 'INSERT'
-     *
-     * @var array
-     */
-    private $values = [];
+    private $insert = [];
 
     /**
      * Listado de condiciones para ejecutar 'SELECT', 'UPDATE' y 'DELETE'
@@ -191,35 +177,7 @@ final class Builder
     public function insert(array $values): self
     {
         $this->type = self::INSERT;
-        array_push($this->inserts, Validator::insert($values));
-
-        return $this;
-    }
-
-    /**
-     * Añade columnas para nueva inserción
-     *
-     * @param mixed $columns,... Columnas a añadir
-     * @return $this
-     */
-    public function columns(string ...$columns): self
-    {
-        $this->type = self::INSERT;
-        $selects = Validator::columns($columns);
-
-        foreach ($selects as $select) {
-            if (!array_key_exists($select, $this->columns)) {
-                $this->columns[$select] = $select;
-            }
-        }
-
-        return $this;
-    }
-
-    // TODO: docs
-    public function values(string ...$values): self
-    {
-        $this->type = self::INSERT;
+        $this->insert = Validator::insert($values);
 
         return $this;
     }
@@ -285,23 +243,13 @@ final class Builder
     }
 
     /**
-     * Obtiene listado de columnas para 'INSERT'
-     *
-     * @return array
-     */
-    public function getColumns(): array
-    {
-        return $this->columns;
-    }
-
-    /**
      * Obtiene listado de filas para 'INSERT'
      *
      * @return array
      */
     public function getInserts(): array
     {
-        return $this->inserts;
+        return $this->insert;
     }
 
     /**
@@ -346,7 +294,7 @@ final class Builder
         }
 
         // añade columnas
-        $query .= ' ' . implode(', ', $this->columns);
+        $query .= ' ' . implode(', ', $this->selects);
 
         // añade 'from'
         $query .= ' FROM ' . $this->table;
@@ -366,7 +314,18 @@ final class Builder
      */
     private function getInsertSql(): string
     {
-        return '';
+        $query = 'INSERT INTO ' . $this->table .
+            ' (' . implode(', ', array_keys($this->insert)) . ') VALUES (';
+
+        // itera sobre los valores y lo añade a la consulta
+        foreach (array_values($this->insert) as $index => $insert) {
+            $query .= is_string($insert) ? "'$insert'" : $insert;
+            $query .= $index < (count($this->insert) - 1) ? ', ': '';
+        }
+
+        $query .= ')';
+
+        return $query;
     }
 
     /**

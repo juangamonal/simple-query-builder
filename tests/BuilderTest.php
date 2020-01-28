@@ -56,15 +56,15 @@ final class BuilderTest extends TestCase
         // prueba con la columna por defecto '*'
         $builder = Builder::table('table');
         $builder->select();
-        $this->assertCount(1, $builder->getColumns());
+        $this->assertCount(1, $builder->getSelects());
 
         // todavía debería haber uno
         $builder->select('column');
-        $this->assertCount(1, $builder->getColumns());
+        $this->assertCount(1, $builder->getSelects());
 
         // añade múltiples select
         $builder->select('column_one', 'column_two', 'column_three');
-        $this->assertCount(3, $builder->getColumns());
+        $this->assertCount(3, $builder->getSelects());
 
         // error: nombre inválido
         $this->expectException(InvalidArgumentException::class);
@@ -81,11 +81,11 @@ final class BuilderTest extends TestCase
         $builder = Builder::table('table');
         $builder->select('one', 'two');
 
-        $this->assertCount(2, $builder->getColumns());
+        $this->assertCount(2, $builder->getSelects());
 
         $builder->addSelect('three', 'four');
 
-        $this->assertCount(4, $builder->getColumns());
+        $this->assertCount(4, $builder->getSelects());
     }
 
     // TODO: hacer
@@ -106,71 +106,9 @@ final class BuilderTest extends TestCase
 
         $this->assertCount(1, $builder->getInserts());
 
-        // intenta añadir nuevos inserts a la consulta
+        // intenta añadir nuevos inserts a la consulta, queda en uno ya que cada llamada sobreescribe a la anterior
         $builder->insert(['column_two' => 'value_two']);
         $builder->insert(['column_three' => 'value_three']);
-        $this->assertCount(3, $builder->getInserts());
-    }
-
-    /**
-     * Prueba el método ->columns()
-     *
-     * @return void
-     */
-    public function testColumns()
-    {
-        // añade nuevas columnas
-        $builder = Builder::table('tablename')
-            ->columns('name', 'email', 'password');
-
-        $this->assertCount(3, $builder->getColumns());
-
-        // añade aún más columnas
-        $builder->columns('status', 'created_at');
-        $this->assertCount(5, $builder->getColumns());
-
-        // si se pasa por parámetro una columna ya añadida, ésta se omite, por ende solo debería haber una columna nueva
-        $builder->columns('status', 'updated_at');
-        $this->assertCount(6, $builder->getColumns());
-    }
-
-    // public function testValues(){}
-
-    // TODO: pruebas arriba de esto
-    // TODO: abajo los privados
-
-    /**
-     * Prueba el método ->getSelectSql()
-     *
-     * @return void
-     */
-    public function testGetSelectSql()
-    {
-        // select por defecto
-        $builder = Builder::table('tablename');
-        $sql = 'SELECT * FROM tablename';
-        $this->assertEquals($sql, $builder->toSql());
-
-        // select con un par de columnas
-        $builder->select('one', 'two');
-        $sql = 'SELECT one, two FROM tablename';
-        $this->assertEquals($sql, $builder->toSql());
-
-        // select con addSelect()
-        $builder->select('one', 'two')
-            ->addSelect('three');
-        $sql = 'SELECT one, two, three FROM tablename';
-        $this->assertEquals($sql, $builder->toSql());
-
-        // select con distinct
-        $builder->select('one', 'two')
-            ->distinct();
-        $sql = 'SELECT DISTINCT one, two FROM tablename';
-        $this->assertEquals($sql, $builder->toSql());
-
-        // TODO: select con where
-        // TODO: select con groupBy
-        // TODO: select con having
-        // TODO: select con orderBy
+        $this->assertCount(1, $builder->getInserts());
     }
 }
