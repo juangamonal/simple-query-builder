@@ -1,0 +1,26 @@
+{
+    "name": "ucsc/query-builder",
+    "description": "API sencilla y moderna para generar y ejecutar consultas SQL sobre PDO",
+    "authors": [
+        {
+            "name": "Juan Gamonal H",
+            "email": "jgamonal@ucsc.cl"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^8",
+        "squizlabs/php_codesniffer": "*"
+    },
+    "scripts": {
+        "cs": "phpcs",
+        "test": "phpunit"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
