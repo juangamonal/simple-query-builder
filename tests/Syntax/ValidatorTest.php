@@ -55,4 +55,20 @@ final class ValidatorTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         Validator::insert(['_invalid' => 'value_one']);
     }
+
+    /**
+     * Prueba la validación de los 'WHERE'
+     *
+     * @return void
+     */
+    public function testWhere()
+    {
+        // where correcto
+        $valid = ['status = 1', 'age > 18'];
+        $this->assertEquals($valid, Validator::where($valid));
+
+        // error al tener cláusula inválida
+        $this->expectException(InvalidArgumentException::class);
+        Validator::where(['invalid syntax']);
+    }
 }

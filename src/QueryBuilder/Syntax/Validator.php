@@ -68,4 +68,28 @@ final class Validator
             throw new InvalidArgumentException();
         }
     }
+
+    /**
+     * Valida un nuevo 'Where' añadido
+     *
+     * @param array $clauses Cláusulas 'Where' a añadir
+     *
+     * @return array
+     */
+    public static function where(array $clauses)
+    {
+        $wheres = [];
+
+        foreach ($clauses as $clause) {
+            $clause = trim($clause);
+
+            if (!preg_match(Regex::WHERE, $clause)) {
+                throw new InvalidArgumentException();
+            }
+
+            array_push($wheres, $clause);
+        }
+
+        return $wheres;
+    }
 }

@@ -130,4 +130,57 @@ final class RegexTest extends TestCase
             );
         }
     }
+
+    /**
+     * Prueba que la expresión de 'Where' valide correctamente
+     *
+     * @return void
+     */
+    public function testWhere()
+    {
+        // wheres válidos
+        $clauses = [
+            // operadores
+            'status = 1',
+            'age > 18',
+            'column != value',
+            'column ^= value',
+            'column <> value',
+            'age <= 18',
+            'my_1_field >= 1',
+
+            // table.column
+            'table.column = 1',
+            'table_name.column_name = 1',
+
+            // bind
+            'column = :column',
+            'column_name < :column',
+            'table_name.column < :column'
+        ];
+
+        foreach ($clauses as $clause) {
+            $this->assertEquals(
+                true,
+                preg_match(Regex::WHERE, $clause)
+            );
+        }
+
+        // wheres inválidos
+        $clauses = [
+            'column',
+            'table.column',
+            'invalid syntax',
+            'invalid..syntax = 1',
+            '_table._column < :value',
+            'table_.column_ = :value'
+        ];
+
+        foreach ($clauses as $clause) {
+            $this->assertEquals(
+                false,
+                preg_match(Regex::WHERE, $clause)
+            );
+        }
+    }
 }
