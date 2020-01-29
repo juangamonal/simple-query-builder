@@ -47,6 +47,7 @@ final class BuilderSqlGeneratorTest extends TestCase
         // TODO: select con groupBy
         // TODO: select con having
         // TODO: select con orderBy
+        // TODO: query compleja que tenga todo lo anterior
     }
 
     /**
@@ -67,26 +68,29 @@ final class BuilderSqlGeneratorTest extends TestCase
         $sql = 'SELECT COUNT(one), COUNT(two) FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
 
-        // TODO: count con alias
+        // count con alias
+        $builder->count('one as total_one', 'two as total_two');
+        $sql = 'SELECT COUNT(one) AS total_one, COUNT(two) AS total_two FROM tablename';
+        $this->assertEquals($sql, $builder->toSql());
 
         // count con addCount()
-        /*
-        $builder->select('one', 'two')
-            ->addSelect('three');
-        $sql = 'SELECT one, two, three FROM tablename';
+        $builder = Builder::table('tablename')
+            ->count('one')
+            ->addCount('two as total_two');
+        $sql = 'SELECT COUNT(one), COUNT(two) AS total_two FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
 
         // count con distinct
-        $builder->select('one', 'two')
+        $builder->count('one as total_one', 'two as total_two')
             ->distinct();
-        $sql = 'SELECT DISTINCT one, two FROM tablename';
+        $sql = 'SELECT DISTINCT COUNT(one) AS total_one, COUNT(two) AS total_two FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
-        */
 
-        // TODO: select con where
-        // TODO: select con groupBy
-        // TODO: select con having
-        // TODO: select con orderBy
+        // TODO: count con where
+        // TODO: count con groupBy
+        // TODO: count con having
+        // TODO: count con orderBy
+        // TODO: query compleja que tenga todo lo anterior
     }
 
     /**

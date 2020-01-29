@@ -351,16 +351,21 @@ final class Builder
         }
 
         // añade columnas
+        // en caso de ser count...
         if ($count) {
-            // en caso de ser count...
             foreach (array_values($this->counts) as $index => $count) {
-                // TODO: verifica si el count tiene 'as'
-                $query .= " COUNT($count)";
-                // $query .= ' as ';
+                if (strpos($count, ' as ')) {
+                    $pieces = explode(' ', $count);
+                    $query .= " COUNT($pieces[0]) AS $pieces[2]";
+                } else {
+                    $query .= " COUNT($count)";
+                }
+
                 $query .= $index < (count($this->counts) - 1) ? ',': '';
             }
-        }else {
-            // en caso de ser select normal...
+        }
+        // en caso de ser select normal...
+        else {
             $query .= ' ' . implode(', ', $this->selects);
         }
 
