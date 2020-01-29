@@ -2,6 +2,7 @@
 
 namespace QueryBuilder\Tests;
 
+use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Builder;
@@ -196,4 +197,85 @@ final class BuilderTest extends TestCase
 
         $this->assertCount(3, $builder->getWheres());
     }
+
+    /**
+     * Prueba el método ->orWhere()
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function testOrWhere()
+    {
+        // error, sin wheres
+        $this->expectException(Exception::class);
+        $builder = Builder::table('users')
+            ->orWhere('error');
+
+        // orWhere básico
+        $builder->where('status = 1')
+            ->orWhere('age > 0');
+        $this->assertCount(2, $builder->getWheres());
+
+        // sobreescribe el/los orWhere anterior/es
+        $builder->orWhere('status = 0');
+        $this->assertCount(2, $builder->getWheres());
+    }
+
+    /**
+     * Prueba el método ->addOrWhere()
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function testAddOrWhere()
+    {
+        // error, sin wheres
+        $this->expectException(Exception::class);
+        $builder = Builder::table('users')
+            ->addOrWhere('error');
+
+        // addOrWhere básico
+        $builder->where('status = 1')
+            ->addOrWhere('age > 0');
+        $this->assertCount(2, $builder->getWheres());
+
+        $builder->addOrWhere('age < 18');
+        $this->assertCount(3, $builder->getWheres());
+    }
+
+    /**
+     * Prueba el método ->validateExistingWhere()
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function testValidateExistingWhere()
+    {
+        // prueba con orWhere
+        $this->expectException(Exception::class);
+        $builder = Builder::table('users')
+            ->orWhere('error');
+
+        // prueba con addOrWhere
+        $this->expectException(Exception::class);
+        $builder->addOrWhere('another error');
+    }
+
+    /**
+     * Prueba el método ->prepareWhere()
+     *
+     * @return void
+    public function testPrepareWhere()
+    {
+        // un solo where
+        $builder = Builder::table('users')
+            ->where('age > 18');
+
+        // múltiples where
+        // utilizando addWhere
+        // or where
+        // utilizando addOrWhere
+        // mezclado where y addWhere
+        // situación compleja
+    }*/
 }

@@ -2,6 +2,7 @@
 
 namespace QueryBuilder;
 
+use Exception;
 use InvalidArgumentException;
 use QueryBuilder\Syntax\Regex;
 use QueryBuilder\Syntax\Validator;
@@ -280,13 +281,37 @@ final class Builder
         return $this;
     }
 
-    public function orWhere(): self
+    /**
+     * Añade cláusulas para realizar 'OR WHERE'
+     *
+     * @param mixed $clauses,... Cláusulas de 'OR WHERE'
+     *
+     * @throws Exception
+     * @return $this
+     */
+    public function orWhere(string ...$clauses): self
     {
+        // vacía los orWhere existentes
+        $this->wheres = array_filter($this->wheres);
+        $this->validateExistingWhere();
+        $this->wheres = array_merge($this->wheres, Validator::where($clauses, false));
+
         return $this;
     }
 
-    public function addOrWhere(): self
+    /**
+     * Añade cláusulas para realizar 'OR WHERE'
+     *
+     * @param mixed $clauses,... Cláusulas de 'OR WHERE'
+     *
+     * @throws Exception
+     * @return $this
+     */
+    public function addOrWhere(string ...$clauses): self
     {
+        $this->validateExistingWhere();
+        $this->wheres = array_merge($this->wheres, Validator::where($clauses, false));
+
         return $this;
     }
 
@@ -405,7 +430,11 @@ final class Builder
         // añade 'from'
         $query .= ' FROM ' . $this->table;
 
-        // TODO: añade 'where'
+        // añade 'where'
+        if (count($this->wheres) > 0) {
+            $query .= ' WHERE ' . $this->prepareWhere();
+        }
+
         // TODO: añade 'groupBy'
         // TODO: añade 'having'
         // TODO: añade 'orderBy'
@@ -450,6 +479,29 @@ final class Builder
      * @return string
      */
     private function getDeleteSql(): string
+    {
+        return '';
+    }
+
+    /**
+     * Valida que existan cláusulas 'WHERE' añadidas
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function validateExistingWhere(): void
+    {
+        if (count(array_filter($this->wheres)) === 0) {
+            throw new Exception();
+        }
+    }
+
+    /**
+     * Prepara las cláusulas 'WHERE' para ser concatenadas en otra consulta
+     *
+     * @return string
+     */
+    private function prepareWhere(): string
     {
         return '';
     }

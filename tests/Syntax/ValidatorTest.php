@@ -65,7 +65,7 @@ final class ValidatorTest extends TestCase
     {
         // where correcto
         $valid = ['status = 1', 'age > 18'];
-        $result = ['status = 1' => false, 'age > 18' => false];
+        $result = ['status = 1' => true, 'age > 18' => true];
         $this->assertEquals($result, Validator::where($valid));
 
         // error al tener cláusula inválida
