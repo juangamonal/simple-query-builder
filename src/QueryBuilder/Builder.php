@@ -252,17 +252,40 @@ final class Builder
         return $this;
     }
 
-    public function where(): self
+    /**
+     * Asigna cláusulas para realizar 'WHERE'
+     *
+     * @param mixed $clauses,... Cláusulas de 'WHERE'
+     *
+     * @return $this
+     */
+    public function where(string ...$clauses): self
     {
+        $this->wheres = Validator::where($clauses);
+
         return $this;
     }
 
-    public function andWhere(): self
+    /**
+     * Añade cláusulas para realizar 'WHERE'
+     *
+     * @param mixed $clauses,... Cláusulas de 'WHERE'
+     *
+     * @return $this
+     */
+    public function addWhere(string ...$clauses): self
     {
+        $this->wheres = array_merge($this->wheres, Validator::where($clauses));
+
         return $this;
     }
 
     public function orWhere(): self
+    {
+        return $this;
+    }
+
+    public function addOrWhere(): self
     {
         return $this;
     }
@@ -315,6 +338,16 @@ final class Builder
     public function getInsert(): array
     {
         return $this->insert;
+    }
+
+    /**
+     * Obtiene listado de cláusulas 'WHERE'
+     *
+     * @return array
+     */
+    public function getWheres(): array
+    {
+        return $this->wheres;
     }
 
     /**

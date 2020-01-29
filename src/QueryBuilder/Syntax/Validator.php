@@ -73,10 +73,11 @@ final class Validator
      * Valida un nuevo 'Where' añadido
      *
      * @param array $clauses Cláusulas 'Where' a añadir
+     * @param bool $or Indica si las cláusulas corresponden a 'AND' o 'OR'
      *
      * @return array
      */
-    public static function where(array $clauses)
+    public static function where(array $clauses, bool $or = false)
     {
         $wheres = [];
 
@@ -87,7 +88,7 @@ final class Validator
                 throw new InvalidArgumentException();
             }
 
-            array_push($wheres, $clause);
+            $wheres[$clause] = $or;
         }
 
         return $wheres;

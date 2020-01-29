@@ -153,4 +153,47 @@ final class BuilderTest extends TestCase
         $builder->insert(['column_three' => 'value_three']);
         $this->assertCount(1, $builder->getInsert());
     }
+
+    /**
+     * Prueba el método ->where()
+     *
+     * @return void
+     */
+    public function testWhere()
+    {
+        // where básico
+        $builder = Builder::table('users')
+            ->where(
+                'status = 1',
+                'age > 18'
+            );
+
+        $this->assertCount(2, $builder->getWheres());
+
+        // sobreescribe el where anterior
+        $builder->where('status = 0');
+        $this->assertCount(1, $builder->getWheres());
+    }
+
+    /**
+     * Prueba el método ->addWhere()
+     *
+     * @return void
+     */
+    public function testAddWhere()
+    {
+        $builder = Builder::table('users');
+        $builder->where(
+            'status = 1'
+        );
+
+        $this->assertCount(1, $builder->getWheres());
+
+        $builder->addWhere(
+            'age > 18',
+            "name = 'Juan Gamonal H'"
+        );
+
+        $this->assertCount(3, $builder->getWheres());
+    }
 }
