@@ -31,7 +31,16 @@ class SelectCountHandler
         }
 
         // añade columnas
-        $query .= ' ' . implode(', ', $statements);
+        foreach (array_values($statements) as $index => $statement) {
+            if (strpos($statement, ' AS ')) {
+                $pieces = explode(' ', $statement);
+                $query .= " COUNT($pieces[0]) AS $pieces[2]";
+            } else {
+                $query .= " COUNT($statement)";
+            }
+
+            $query .= $index < (count($statements) - 1) ? ',': '';
+        }
 
         // añade 'from'
         $query .= ' FROM ' . $table;
