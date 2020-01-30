@@ -50,7 +50,7 @@ final class Builder
      *
      * @var array
      */
-    private $selects = ['*'];
+    private $selects = [];
 
     /**
      * Indica si 'SELECT' utilizará 'DISTINCT'
@@ -142,12 +142,12 @@ final class Builder
     public function select(string ...$statements): self
     {
         $this->selects = [];
-        $this->type = self::SELECT;
 
         if (count($statements) === 0) {
             $statements = ['*'];
         }
 
+        $this->type = self::SELECT;
         $this->selects = Validator::select($statements);
 
         return $this;
@@ -191,12 +191,12 @@ final class Builder
     public function count(string ...$statements): self
     {
         $this->counts = [];
-        $this->type = self::SELECT;
 
         if (count($statements) === 0) {
             $statements = ['*'];
         }
 
+        $this->type = self::SELECT;
         $this->counts = Validator::select($statements);
 
         return $this;
@@ -426,10 +426,14 @@ final class Builder
         $query = '';
 
         // añade declaraciones de 'SELECT'
-        $query .= $count ? SelectCountHandler::prepare() : SelectHandler::prepare(
-            $this->getTable(),
-            $this->getSelects(),
-            $this->getDistinct()
+        $query .= $count ? SelectCountHandler::prepare(
+            $this->table,
+            $this->counts,
+            $this->distinct
+        ) : SelectHandler::prepare(
+            $this->table,
+            $this->selects,
+            $this->distinct
         );
 
         // añade cláusulas de 'WHERE'

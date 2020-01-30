@@ -54,13 +54,14 @@ final class BuilderTest extends TestCase
      */
     public function testSelect()
     {
-        // prueba con la columna por defecto '*'
-        $builder = Builder::table('table');
-        $builder->select();
+        // añade un select vacío
+        $builder = Builder::table('table')
+            ->select();
         $this->assertCount(1, $builder->getSelects());
 
-        // todavía debería haber uno
-        $builder->select('column');
+        // sobreescribe las declaraciones anteriores
+        $builder = Builder::table('users')
+            ->select('column');
         $this->assertCount(1, $builder->getSelects());
 
         // añade múltiples select
@@ -99,13 +100,14 @@ final class BuilderTest extends TestCase
      */
     public function testCount()
     {
-        // prueba con la columna por defecto '*'
-        $builder = Builder::table('table');
-        $builder->count();
+        // añade un count vacío
+        $builder = Builder::table('table')
+            ->count();
         $this->assertCount(1, $builder->getCounts());
 
-        // todavía debería haber uno
-        $builder->count('column');
+        // sobreescribe las declaraciones anteriores
+        $builder = Builder::table('users')
+            ->count('column');
         $this->assertCount(1, $builder->getCounts());
 
         // añade múltiples count

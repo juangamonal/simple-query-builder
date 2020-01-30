@@ -21,7 +21,9 @@ class SelectCountHandler
      */
     public static function prepare(string $table, array $statements, bool $distinct = false): string
     {
-        // TODO: debe validar que tenga al menos una columna?
+        if (count($statements) === 0) {
+            $statements = ['*'];
+        }
 
         $query = 'SELECT';
 
