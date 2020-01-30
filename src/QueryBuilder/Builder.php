@@ -4,6 +4,8 @@ namespace QueryBuilder;
 
 use Exception;
 use InvalidArgumentException;
+use QueryBuilder\Handlers\SelectCountHandler;
+use QueryBuilder\Handlers\SelectHandler;
 use QueryBuilder\Handlers\WhereHandler;
 use QueryBuilder\Syntax\Regex;
 use QueryBuilder\Syntax\Validator;
@@ -338,6 +340,16 @@ final class Builder
     }
 
     /**
+     * Obtiene el nombre de la tabla
+     *
+     * @return string|null
+     */
+    public function getTable(): string
+    {
+        return $this->table;
+    }
+
+    /**
      * Obtiene listado de columnas para 'SELECT'
      *
      * @return array
@@ -345,6 +357,16 @@ final class Builder
     public function getSelects(): array
     {
         return $this->selects;
+    }
+
+    /**
+     * Obtiene la verificación para usar 'DISTINCT'
+     *
+     * @return bool
+     */
+    public function getDistinct(): bool
+    {
+        return $this->distinct;
     }
 
     /**
@@ -401,45 +423,19 @@ final class Builder
      */
     private function getSelectSql(bool $count = false): string
     {
-        // TODO: debe validar que tenga al menos una columna?
+        $query = '';
 
-        $query = 'SELECT';
+        // añade declaraciones de 'SELECT'
+        $query .= $count ? SelectCountHandler::prepare() : SelectHandler::prepare(
+            $this->getTable(),
+            $this->getSelects(),
+            $this->getDistinct()
+        );
 
-        // añade distinct
-        if ($this->distinct) {
-            $query .= ' DISTINCT';
-        }
-
-        // añade columnas
-        // en caso de ser count...
-        if ($count) {
-            foreach (array_values($this->counts) as $index => $count) {
-                if (strpos($count, ' as ')) {
-                    $pieces = explode(' ', $count);
-                    $query .= " COUNT($pieces[0]) AS $pieces[2]";
-                } else {
-                    $query .= " COUNT($count)";
-                }
-
-                $query .= $index < (count($this->counts) - 1) ? ',': '';
-            }
-        }
-        // en caso de ser select normal...
-        else {
-            $query .= ' ' . implode(', ', $this->selects);
-        }
-
-        // añade 'from'
-        $query .= ' FROM ' . $this->table;
-
-        // añade 'where'
+        // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
-            $query .= ' ' . WhereHandler::prepare($this->getWheres());
+            $query .= ' ' . WhereHandler::prepare($this->wheres);
         }
-
-        // TODO: añade 'groupBy'
-        // TODO: añade 'having'
-        // TODO: añade 'orderBy'
 
         return $query;
     }

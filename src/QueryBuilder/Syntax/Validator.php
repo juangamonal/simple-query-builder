@@ -34,6 +34,11 @@ final class Validator
                 throw new InvalidArgumentException();
             }
 
+            // en caso de tener alias, se transforma a mayúsculas
+            if (strpos($statement, ' as ')) {
+                $statement = str_replace(' as ', ' AS ', $statement);
+            }
+
             array_push($columns, $statement);
         }
 

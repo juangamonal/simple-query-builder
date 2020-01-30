@@ -26,13 +26,17 @@ final class ValidatorTest extends TestCase
         $valid = [
             'table.column',
             '*',
-            'with_alias as alias'
+            'with_alias AS alias'
         ];
         $this->assertEquals($valid, Validator::select($valid));
 
+        // en caso de recibir un alias, 'as' pasa a ser mayúsculas
+        $original = ['name as full_name', 'email as as'];
+        $valid = ['name AS full_name', 'email AS as'];
+        $this->assertEquals($valid, Validator::select($original));
+
         // excepción al recibir al menos un valor inválido
         $invalid = ['invalid syntax'];
-
         $this->expectException(InvalidArgumentException::class);
         Validator::select($invalid);
     }

@@ -45,14 +45,12 @@ final class BuilderSqlGeneratorTest extends TestCase
         $this->assertEquals($sql, $builder->toSql());
 
         // select con where
-        /* TODO: falla por que el alias no se maneja bien, falta un selectHandler
         $builder  = Builder::table('users')
             ->select('name as full_name')
             ->where('status = 1')
             ->orWhere('removed = 0');
         $sql = 'SELECT name AS full_name FROM users WHERE status = 1 OR removed = 0';
         $this->assertEquals($sql, $builder->toSql());
-        */
 
         // TODO: select distinct con where
 
