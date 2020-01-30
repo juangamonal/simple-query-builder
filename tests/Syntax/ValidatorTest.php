@@ -5,6 +5,7 @@ namespace QueryBuilder\Syntax\Tests;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Syntax\Validator;
+use QueryBuilder\Types\Where;
 
 /**
  * Class ValidatorTest
@@ -65,11 +66,15 @@ final class ValidatorTest extends TestCase
     {
         // where correcto
         $valid = ['status = 1', 'age > 18'];
-        $result = ['status = 1' => true, 'age > 18' => true];
+        $result = ['status = 1' => Where::AND, 'age > 18' => Where::AND];
         $this->assertEquals($result, Validator::where($valid));
 
         // error al tener cláusula inválida
         $this->expectException(InvalidArgumentException::class);
         Validator::where(['invalid syntax']);
+
+        // orWhere
+        $result = ['status = 1' => Where::OR, 'age > 18' => Where::OR];
+        $this->assertEquals($result, Validator::where($valid, Where::OR));
     }
 }

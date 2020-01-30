@@ -3,6 +3,7 @@
 namespace QueryBuilder\Syntax;
 
 use InvalidArgumentException;
+use QueryBuilder\Types\Where;
 
 /**
  * Class Validator
@@ -73,11 +74,11 @@ final class Validator
      * Valida un nuevo 'Where' añadido
      *
      * @param array $clauses Cláusulas 'Where' a añadir
-     * @param bool $and Indica si las cláusulas corresponden a 'AND' o 'OR'
+     * @param int $type
      *
      * @return array
      */
-    public static function where(array $clauses, bool $and = true)
+    public static function where(array $clauses, int $type = null)
     {
         $wheres = [];
 
@@ -88,7 +89,7 @@ final class Validator
                 throw new InvalidArgumentException();
             }
 
-            $wheres[$clause] = $and;
+            $wheres[$clause] = is_null($type) ? Where::AND : $type;
         }
 
         return $wheres;

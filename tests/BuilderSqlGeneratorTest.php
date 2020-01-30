@@ -2,7 +2,7 @@
 
 namespace QueryBuilder\Tests;
 
-use InvalidArgumentException;
+use Exception;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Builder;
 
@@ -17,6 +17,7 @@ final class BuilderSqlGeneratorTest extends TestCase
     /**
      * Prueba el método ->getSelectSql()
      *
+     * @throws Exception
      * @return void
      */
     public function testGetSelectSql()
@@ -43,7 +44,18 @@ final class BuilderSqlGeneratorTest extends TestCase
         $sql = 'SELECT DISTINCT one, two FROM tablename';
         $this->assertEquals($sql, $builder->toSql());
 
-        // TODO: select con where
+        // select con where
+        /* TODO: falla por que el alias no se maneja bien, falta un selectHandler
+        $builder  = Builder::table('users')
+            ->select('name as full_name')
+            ->where('status = 1')
+            ->orWhere('removed = 0');
+        $sql = 'SELECT name AS full_name FROM users WHERE status = 1 OR removed = 0';
+        $this->assertEquals($sql, $builder->toSql());
+        */
+
+        // TODO: select distinct con where
+
         // TODO: select con groupBy
         // TODO: select con having
         // TODO: select con orderBy
