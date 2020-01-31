@@ -75,6 +75,10 @@ final class Validator
         }
     }
 
+    // TODO: creo que no se necesita update, ya que puede usar el método de insert
+
+    // public static function delete(){}
+
     /**
      * Valida un nuevo 'Where' añadido
      *

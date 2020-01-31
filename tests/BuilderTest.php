@@ -158,6 +158,27 @@ final class BuilderTest extends TestCase
     }
 
     /**
+     * Prueba el método ->update()
+     *
+     * @return void
+     */
+    public function testUpdate()
+    {
+        // update básico
+        $builder = Builder::table('tablename')
+            ->update(
+                ['column_one' => 'value_one']
+            );
+
+        $this->assertCount(1, $builder->getUpdate());
+
+        // intenta añadir nuevos update a la consulta, queda en uno ya que cada llamada sobreescribe a la anterior
+        $builder->update(['column_two' => 'value_two']);
+        $builder->update(['column_three' => 'value_three']);
+        $this->assertCount(1, $builder->getUpdate());
+    }
+
+    /**
      * Prueba el método ->where()
      *
      * @return void

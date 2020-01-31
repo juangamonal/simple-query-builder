@@ -6,6 +6,7 @@ use Exception;
 use InvalidArgumentException;
 use QueryBuilder\Handlers\SelectCountHandler;
 use QueryBuilder\Handlers\SelectHandler;
+use QueryBuilder\Handlers\UpdateHandler;
 use QueryBuilder\Handlers\WhereHandler;
 use QueryBuilder\Syntax\Regex;
 use QueryBuilder\Syntax\Validator;
@@ -74,11 +75,18 @@ final class Builder
     private $joins = [];
 
     /**
-     * Matriz con datos para la inserción masiva
+     * Array de datos para la consulta 'INSERT'
      *
      * @var array
      */
     private $insert = [];
+
+    /**
+     * Array de datos para la consulta 'UPDATE'
+     *
+     * @var array
+     */
+    private $update = [];
 
     /**
      * Listado de condiciones para ejecutar 'SELECT', 'UPDATE' y 'DELETE'
@@ -232,8 +240,18 @@ final class Builder
         return $this;
     }
 
-    public function update(): self
+    /**
+     * Añade fila para una modificación
+     *
+     * @param array $values Llave-valor para columna y valor
+     *
+     * @return $this
+     */
+    public function update(array $values): self
     {
+        $this->type = self::UPDATE;
+        $this->update = Validator::insert($values);
+
         return $this;
     }
 
@@ -390,6 +408,16 @@ final class Builder
     }
 
     /**
+     * Obtiene listado de filas para 'UPDATE'
+     *
+     * @return array
+     */
+    public function getUpdate(): array
+    {
+        return $this->update;
+    }
+
+    /**
      * Obtiene listado de cláusulas 'WHERE'
      *
      * @return array
@@ -472,7 +500,14 @@ final class Builder
      */
     private function getUpdateSql(): string
     {
-        return '';
+        $query = UpdateHandler::prepare($this->table, $this->update);
+
+        // añade cláusulas de 'WHERE'
+        if (count($this->wheres) > 0) {
+            $query .= ' ' . WhereHandler::prepare($this->wheres);
+        }
+
+        return $query;
     }
 
     /**
