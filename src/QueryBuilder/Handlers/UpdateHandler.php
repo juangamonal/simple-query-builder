@@ -19,9 +19,13 @@ final class UpdateHandler
      */
     public static function prepare(string $table, array $update): string
     {
-        $query = 'UPDATE ' . $table;
+        $query = 'UPDATE ' . $table . ' SET';
 
-        // TODO maneja los 'SET'
+        // itera sobre los valores y lo añade a la consulta
+        foreach ($update as $index => $value) {
+            $query .= " $index = " . is_string($value) ? "'$value'" : $value;
+            $query .= array_key_first($update) !== $index ? ', ': '';
+        }
 
         return $query;
     }
