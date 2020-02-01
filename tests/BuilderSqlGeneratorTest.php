@@ -171,4 +171,25 @@ final class BuilderSqlGeneratorTest extends TestCase
         $sql .= " WHERE status = 1 AND name = 'Juan Gamonal' OR name = 'Juan Gamonal H'";
         $this->assertEquals($sql, $builder->toSql());
     }
+
+    /**
+     * Prueba el método ->getDeleteSql()
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function testGetDeleteSql()
+    {
+        // delete básico
+        $builder = Builder::table('users')
+            ->delete();
+        $sql = 'DELETE FROM users';
+        $this->assertEquals($sql, $builder->toSql());
+
+        // delete con where y orWhere
+        $builder->where('status = 1', "name = 'Juan Gamonal'")
+            ->orWhere("name = 'Juan Gamonal H'");
+        $sql .= " WHERE status = 1 AND name = 'Juan Gamonal' OR name = 'Juan Gamonal H'";
+        $this->assertEquals($sql, $builder->toSql());
+    }
 }

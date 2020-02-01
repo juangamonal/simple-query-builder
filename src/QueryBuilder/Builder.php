@@ -256,8 +256,15 @@ final class Builder
         return $this;
     }
 
+    /**
+     * Configura el builder para eliminar columnas
+     *
+     * @return $this
+     */
     public function delete(): self
     {
+        $this->type = self::DELETE;
+
         return $this;
     }
 
@@ -507,7 +514,14 @@ final class Builder
      */
     private function getDeleteSql(): string
     {
-        return '';
+        $query = 'DELETE FROM ' . $this->table;
+
+        // añade cláusulas de 'WHERE'
+        if (count($this->wheres) > 0) {
+            $query .= ' ' . WhereHandler::prepare($this->wheres);
+        }
+
+        return $query;
     }
 
     /**
