@@ -16,6 +16,7 @@ final class WhereHandler
      * Prepara las cláusulas 'WHERE' para ser concatenadas en otra consulta
      *
      * @param array $clauses Listado de cláusulas 'WHERE'
+     *
      * @return string
      */
     public static function prepare(array $clauses): string

@@ -4,6 +4,7 @@ namespace QueryBuilder;
 
 use Exception;
 use InvalidArgumentException;
+use QueryBuilder\Handlers\InsertHandler;
 use QueryBuilder\Handlers\SelectCountHandler;
 use QueryBuilder\Handlers\SelectHandler;
 use QueryBuilder\Handlers\UpdateHandler;
@@ -479,18 +480,7 @@ final class Builder
      */
     private function getInsertSql(): string
     {
-        $query = 'INSERT INTO ' . $this->table .
-            ' (' . implode(', ', array_keys($this->insert)) . ') VALUES (';
-
-        // itera sobre los valores y lo añade a la consulta
-        foreach (array_values($this->insert) as $index => $insert) {
-            $query .= is_string($insert) ? "'$insert'" : $insert;
-            $query .= $index < (count($this->insert) - 1) ? ', ': '';
-        }
-
-        $query .= ')';
-
-        return $query;
+        return InsertHandler::prepare($this->table, $this->insert);
     }
 
     /**

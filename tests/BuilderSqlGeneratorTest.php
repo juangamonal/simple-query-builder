@@ -149,21 +149,26 @@ final class BuilderSqlGeneratorTest extends TestCase
     }
 
     /**
-     * Prueba el método ->getInsertSql()
+     * Prueba el método ->getUpdateSql()
      *
+     * @throws Exception
      * @return void
      */
-    public function testGetInsertSql()
+    public function testGetUpdateSql()
     {
-        // insert básico
+        // update básico
         $builder = Builder::table('users')
-            ->insert([
-                'name' => 'Juan Gamonal H',
-                'age' => 26
+            ->update([
+                'age' => 20,
+                'email' => 'juangamonalh@gmail.com'
             ]);
-        $sql = "INSERT INTO users (name, age) VALUES ('Juan Gamonal H', 26)";
+        $sql = "UPDATE users SET age = 20, email = 'juangamonalh@gmail.com'";
         $this->assertEquals($sql, $builder->toSql());
 
-        // TODO: probar con demás tipos de datos
+        // update con where y orWhere
+        $builder->where('status = 1', "name = 'Juan Gamonal'")
+            ->orWhere("name = 'Juan Gamonal H'");
+        $sql .= " WHERE status = 1 AND name = 'Juan Gamonal' OR name = 'Juan Gamonal H'";
+        $this->assertEquals($sql, $builder->toSql());
     }
 }

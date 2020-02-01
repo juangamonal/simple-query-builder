@@ -17,7 +17,7 @@ final class Validator
     // public static function create(){}
 
     /**
-     * Valida un nuevo 'Select' añadido
+     * Valida un nuevo 'SELECT' añadido
      *
      * @param array $statements Declaraciones a validar
      *
@@ -46,7 +46,7 @@ final class Validator
     }
 
     /**
-     * Valida un nuevo 'Insert' añadido
+     * Valida un nuevo 'INSERT' añadido
      *
      * @param array $values Valores a insertar
      *
@@ -75,14 +75,12 @@ final class Validator
         }
     }
 
-    // TODO: creo que no se necesita update, ya que puede usar el método de insert
-
     // public static function delete(){}
 
     /**
-     * Valida un nuevo 'Where' añadido
+     * Valida un nuevo 'WHERE' añadido
      *
-     * @param array $clauses Cláusulas 'Where' a añadir
+     * @param array $clauses Cláusulas 'WHERE' a añadir
      * @param int $type
      *
      * @return array

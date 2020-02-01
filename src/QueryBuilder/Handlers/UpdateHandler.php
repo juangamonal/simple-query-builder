@@ -14,7 +14,8 @@ final class UpdateHandler
      * Prepara la sentencia 'UPDATE' para ser concatenada en otra consulta
      *
      * @param string $table Nombre de la tabla
-     * @param array $update Valores a modificar
+     * @param array $update Valores a
+     *
      * @return string
      */
     public static function prepare(string $table, array $update): string
@@ -23,8 +24,9 @@ final class UpdateHandler
 
         // itera sobre los valores y lo añade a la consulta
         foreach ($update as $index => $value) {
-            $query .= " $index = " . is_string($value) ? "'$value'" : $value;
-            $query .= array_key_first($update) !== $index ? ', ': '';
+            $query .= array_key_first($update) !== $index ? ',' : '';
+            $query .= " $index = ";
+            $query .= is_string($value) ? "'$value'" : $value;
         }
 
         return $query;

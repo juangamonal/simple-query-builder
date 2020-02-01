@@ -21,15 +21,18 @@ class UpdateHandlerTest extends TestCase
      */
     public function testPrepare()
     {
-        // prepara un 'UPDATE' sencillo
+        // prepara un 'UPDATE'
         $builder = Builder::table('users')
             ->update([
-                'status' => 1
+                'age' => 20,
+                'email' => 'juangamonalh@gmail.com'
             ]);
-        $sql = 'UPDATE users SET status = 1';
+        $sql = "UPDATE users SET age = 20, email = 'juangamonalh@gmail.com'";
         $this->assertEquals($sql, UpdateHandler::prepare(
             $builder->getTable(),
             $builder->getUpdate()
         ));
+
+        // TODO: probar con demás tipos de datos
     }
 }
