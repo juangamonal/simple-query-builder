@@ -62,6 +62,13 @@ final class Builder
     private $distinct = false;
 
     /**
+     * Indica si 'SELECT' utilizará 'LIMIT'
+     *
+     * @var int
+     */
+    private $limit;
+
+    /**
      * Listado de columnas para hacer 'SELECT COUNT'
      *
      * @var array
@@ -186,6 +193,21 @@ final class Builder
     {
         $this->type = self::SELECT;
         $this->distinct = true;
+
+        return $this;
+    }
+
+    /**
+     * Indica el límite de resultados que se desean obtener con 'SELECT'
+     *
+     * @param int $limit Límite de resultados
+     *
+     * @return $this
+     */
+    public function limit(int $limit): self
+    {
+        $this->type = self::SELECT;
+        $this->limit = $limit;
 
         return $this;
     }
@@ -475,6 +497,11 @@ final class Builder
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
             $query .= ' ' . WhereHandler::prepare($this->wheres);
+        }
+
+        // añade 'LIMIT'
+        if ($this->limit) {
+            $query .= ' LIMIT ' . $this->limit;
         }
 
         return $query;

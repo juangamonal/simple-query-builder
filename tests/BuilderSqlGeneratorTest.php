@@ -74,6 +74,12 @@ final class BuilderSqlGeneratorTest extends TestCase
         $sql = 'SELECT DISTINCT email, status FROM users WHERE age < 18 OR age > 0';
         $this->assertEquals($sql, $builder->toSql());
 
+        // select con limit
+        $builder = Builder::table('users')
+            ->limit(10);
+        $sql = 'SELECT * FROM users LIMIT 10';
+        $this->assertEquals($sql, $builder->toSql());
+
         // TODO: select con groupBy
         // TODO: select con having
         // TODO: select con orderBy
@@ -140,6 +146,13 @@ final class BuilderSqlGeneratorTest extends TestCase
             ->orWhere('age > 0')
             ->distinct();
         $sql = 'SELECT DISTINCT COUNT(email), COUNT(status) FROM users WHERE age < 18 OR age > 0';
+        $this->assertEquals($sql, $builder->toSql());
+
+        // count con limit
+        $builder = Builder::table('users')
+            ->count()
+            ->limit(10);
+        $sql = 'SELECT COUNT(*) FROM users LIMIT 10';
         $this->assertEquals($sql, $builder->toSql());
 
         // TODO: count con groupBy
