@@ -2,6 +2,8 @@
 
 namespace QueryBuilder;
 
+use QueryBuilder\Types\Engine;
+
 /**
  * Class Connection
  *
@@ -11,6 +13,13 @@ namespace QueryBuilder;
 class Connection implements ConnectionInterface
 {
     /**
+     * Define la gramática que debe usar para crear las consultas
+     *
+     * @var string
+     */
+    private $engine;
+
+    /**
      * Devuelve el String de conexión
      *
      * @return string
@@ -19,5 +28,15 @@ class Connection implements ConnectionInterface
     {
         // TODO: Implement getConnectionString() method.
         return 'asd';
+    }
+
+    /**
+     * Devuelve el nombre del motor asociado a la conexión
+     *
+     * @return string
+     */
+    public function getEngine(): string
+    {
+        return Engine::ORACLE;
     }
 }

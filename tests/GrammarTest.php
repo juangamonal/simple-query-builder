@@ -1,24 +1,24 @@
 <?php
 
-namespace QueryBuilder\Handlers\Tests;
+namespace QueryBuilder\Tests;
 
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Builder;
 
 /**
- * Class InsertHandlerTest
+ * Class GrammarTest
  *
- * @author Juan Gamonal H <jgamonal@ucsc.cl>
- * @package QueryBuilder\Handlers\Tests
+ * @author Juan Gamonal H <juangamonalh@gmail.com>
+ * @package QueryBuilder\Tests
  */
-class InsertHandlerTest extends TestCase
+final class GrammarTest extends TestCase
 {
     /**
-     * Prueba el método ->getInsertSql()
+     * Prueba el método ->insert()
      *
      * @return void
      */
-    public function testGetInsertSql()
+    public function testInsert()
     {
         // insert básico
         $builder = Builder::table('users')

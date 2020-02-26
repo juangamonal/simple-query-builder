@@ -3,13 +3,11 @@
 namespace QueryBuilder;
 
 use Exception;
-use InvalidArgumentException;
-use QueryBuilder\Handlers\InsertHandler;
+use QueryBuilder\Handlers\GrammarHandler;
 use QueryBuilder\Handlers\SelectCountHandler;
 use QueryBuilder\Handlers\SelectHandler;
 use QueryBuilder\Handlers\UpdateHandler;
 use QueryBuilder\Handlers\WhereHandler;
-use QueryBuilder\Syntax\Regex;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Where;
 
@@ -39,6 +37,13 @@ final class Builder
      * @var ConnectionInterface
      */
     private $connection;
+
+    /**
+     * Define la gramática que debe usar para crear las consultas
+     *
+     * @var Grammar
+     */
+    private $grammar;
 
     /**
      * Nombre de la tabla
@@ -110,17 +115,13 @@ final class Builder
     /**
      * Builder constructor.
      *
-     * @param string|null         $table      Nombre de la tabla
-     * @param ConnectionInterface $connection Instancia de conexión a la BDD
+     * @param ConnectionInterface|null $connection Instancia de conexión a la BDD
+     * @param Grammar|null $grammar Instancia de gramática de motor de BDD
      */
-    public function __construct(string $table = null, ConnectionInterface $connection = null)
+    public function __construct(ConnectionInterface $connection = null, Grammar $grammar = null)
     {
-        if (!preg_match(Regex::TABLE_NAME, $table)) {
-            throw new InvalidArgumentException();
-        }
-
-        $this->table = $table;
         $this->connection = $connection;
+        $this->grammar = $grammar ?: GrammarHandler::create($connection->getEngine());
     }
 
     public function execute(): void
@@ -398,6 +399,20 @@ final class Builder
     }
 
     /**
+     * Añade o modifica el nombre de la tabla base para el builder
+     *
+     * @param string $table Nombre de la tabla
+     *
+     * @return $this
+     */
+    public function setTable(string $table): self
+    {
+        $this->table = $table;
+
+        return $this;
+    }
+
+    /**
      * Obtiene listado de columnas para 'SELECT'
      *
      * @return array
@@ -460,16 +475,16 @@ final class Builder
     /**
      * Crea una nueva instancia de Query Builder
      *
-     * @param string|null $table Nombre de la tabla
+     * @param string $table Nombre de la tabla
      *
      * @return self
      */
-    public static function table(string $table = null): self
+    public static function table(string $table): self
     {
-        return new self(
-            $table,
-            new Connection()
-        );
+        $builder = new self(new Connection());
+        $builder->setTable($table);
+
+        return $builder;
     }
 
     /**
@@ -514,7 +529,7 @@ final class Builder
      */
     private function getInsertSql(): string
     {
-        return InsertHandler::prepare($this->table, $this->insert);
+        return $this->grammar->insert($this->table, $this->insert);
     }
 
     /**

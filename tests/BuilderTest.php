@@ -6,6 +6,7 @@ use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Builder;
+use QueryBuilder\Connection;
 
 /**
  * Class BuilderTest
@@ -15,24 +16,6 @@ use QueryBuilder\Builder;
  */
 final class BuilderTest extends TestCase
 {
-    /**
-     * Prueba que se cree correctamente un Query Builder
-     *
-     * @return void
-     */
-    public function testCreate()
-    {
-        // a través de constructor
-        new Builder('table');
-
-        // a través de create
-        Builder::table('table');
-
-        // nombre inválido
-        $this->expectException(InvalidArgumentException::class);
-        Builder::table('invalid.table');
-    }
-
     /**
      * Prueba el método ->execute()
      *

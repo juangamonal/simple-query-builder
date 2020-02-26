@@ -5,7 +5,8 @@ namespace QueryBuilder;
 /**
  * Interface ConnectionInterface
  *
- * @author
+ * @author Juan Gamonal H <juangamonalh@gmail.com>
+ * @package QueryBuilder
  */
 interface ConnectionInterface
 {
@@ -15,4 +16,11 @@ interface ConnectionInterface
      * @return string
      */
     public function getConnectionString(): string;
+
+    /**
+     * Devuelve el nombre del motor asociado a la conexión
+     *
+     * @return string
+     */
+    public function getEngine(): string;
 }

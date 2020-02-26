@@ -1,14 +1,14 @@
 <?php
 
-namespace QueryBuilder\Handlers;
+namespace QueryBuilder;
 
 /**
- * Class InsertHandler
+ * Class Grammar
  *
- * @author Juan Gamonal H <juangamonalh@gmail.com>
- * @package QueryBuilder\Handlers
+ * @package QueryBuilder
+ * @author Juan Gamonal H <juangamonal@gmail.com>
  */
-final class InsertHandler
+abstract class Grammar
 {
     /**
      * Prepara la sentencia 'INSERT' para ser concatenada en otra consulta
@@ -18,7 +18,7 @@ final class InsertHandler
      *
      * @return string
      */
-    public static function prepare(string $table, array $insert): string
+    public function insert(string $table, array $insert): string
     {
         $query = 'INSERT INTO ' . $table .
             ' (' . implode(', ', array_keys($insert)) . ') VALUES (';
