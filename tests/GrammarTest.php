@@ -54,6 +54,25 @@ final class GrammarTest extends TestCase
     }
 
     /**
+     * Prueba el método ->update()
+     *
+     * @return void
+     */
+    public function testUpdate()
+    {
+        // insert básico
+        $sql = "UPDATE users SET age = 25, email = 'foo@bar'";
+        $data = [
+            'age' => 25,
+            'email' => 'foo@bar'
+        ];
+
+        $this->assertEquals($sql, $this->grammar->update('users', $data));
+
+        // TODO: probar con demás tipos de datos
+    }
+
+    /**
      * Prueba el método ->where()
      *
      * @return void
