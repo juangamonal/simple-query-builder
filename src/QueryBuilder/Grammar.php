@@ -2,6 +2,8 @@
 
 namespace QueryBuilder;
 
+use QueryBuilder\Types\Where;
+
 /**
  * Class Grammar
  *
@@ -30,6 +32,39 @@ abstract class Grammar
         }
 
         $query .= ')';
+
+        return $query;
+    }
+
+    /**
+     * Prepara las cláusulas 'WHERE' para ser concatenadas en otra consulta
+     *
+     * @param array $clauses Listado de cláusulas 'WHERE'
+     *
+     * @return string
+     */
+    public function where(array $clauses): string
+    {
+        // TODO: manejar sub queries y todo eso
+        $query = 'WHERE';
+
+        foreach ($clauses as $clause => $type) {
+            // maneja 'WHERE' según $type
+            switch ($type) {
+                case Where::AND:
+                    // si es el primer elemento, no añade 'AND'
+                    if (array_key_first($clauses) !== $clause) {
+                        $query .= ' AND';
+                    }
+
+                    break;
+                case Where::OR:
+                    $query .= ' OR';
+                    break;
+            }
+
+            $query .= " $clause";
+        }
 
         return $query;
     }
