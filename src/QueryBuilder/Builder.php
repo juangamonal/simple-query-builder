@@ -120,7 +120,7 @@ final class Builder
      */
     public function __construct(ConnectionInterface $connection = null, Grammar $grammar = null)
     {
-        $this->connection = $connection;
+        $this->connection = $connection ?: new DefaultConnection();
         $this->grammar = $grammar ?: GrammarHandler::create($connection->getEngine());
     }
 
@@ -481,7 +481,7 @@ final class Builder
      */
     public static function table(string $table): self
     {
-        $builder = new self(new Connection());
+        $builder = new self(new DefaultConnection());
         $builder->setTable($table);
 
         return $builder;
