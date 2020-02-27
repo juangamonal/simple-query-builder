@@ -1,6 +1,6 @@
 <?php
 
-namespace QueryBuilder\Syntax\Tests;
+namespace QueryBuilder\Tests\Unit\Syntax;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;

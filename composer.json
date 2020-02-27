@@ -14,7 +14,8 @@
     },
     "require-dev": {
         "vlucas/phpdotenv": "^4.1",
-        "phpunit/phpunit": "^8"
+        "phpunit/phpunit": "^8",
+        "ext-pdo": "*"
     },
     "scripts": {
         "cs": "phpcs",

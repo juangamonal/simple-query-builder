@@ -1,6 +1,6 @@
 <?php
 
-namespace QueryBuilder\Tests;
+namespace QueryBuilder\Tests\Feature;
 
 use PHPUnit\Framework\TestCase;
 

@@ -8,3 +8,5 @@ Thumbs.db
 .phpunit.result.cache
 !/docs/guides
 .env
+
+/tests/**/*.sqlite

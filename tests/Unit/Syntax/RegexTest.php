@@ -1,6 +1,6 @@
 <?php
 
-namespace QueryBuilder\Syntax\Tests;
+namespace QueryBuilder\Tests\Unit\Syntax;
 
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Syntax\Regex;
