@@ -7,7 +7,6 @@ use QueryBuilder\Handlers\GrammarHandler;
 use QueryBuilder\Handlers\SelectCountHandler;
 use QueryBuilder\Handlers\SelectHandler;
 use QueryBuilder\Handlers\UpdateHandler;
-use QueryBuilder\Handlers\WhereHandler;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Where;
 
@@ -511,7 +510,7 @@ final class Builder
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
-            $query .= ' ' . WhereHandler::prepare($this->wheres);
+            $query .= ' ' . $this->grammar->where($this->wheres);
         }
 
         // añade 'LIMIT'
@@ -543,7 +542,7 @@ final class Builder
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
-            $query .= ' ' . WhereHandler::prepare($this->wheres);
+            $query .= ' ' . $this->grammar->where($this->wheres);
         }
 
         return $query;
@@ -560,7 +559,7 @@ final class Builder
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
-            $query .= ' ' . WhereHandler::prepare($this->wheres);
+            $query .= ' ' . $this->grammar->where($this->wheres);
         }
 
         return $query;
