@@ -5,7 +5,6 @@ namespace QueryBuilder;
 use Exception;
 use QueryBuilder\Handlers\GrammarHandler;
 use QueryBuilder\Handlers\SelectCountHandler;
-use QueryBuilder\Handlers\SelectHandler;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Where;
 
@@ -496,12 +495,11 @@ final class Builder
     {
         $query = '';
 
-        // añade declaraciones de 'SELECT'
         $query .= $count ? SelectCountHandler::prepare(
             $this->table,
             $this->counts,
             $this->distinct
-        ) : SelectHandler::prepare(
+        ) : $this->grammar->select(
             $this->table,
             $this->selects,
             $this->distinct

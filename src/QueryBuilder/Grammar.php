@@ -13,6 +13,42 @@ use QueryBuilder\Types\Where;
 abstract class Grammar
 {
     /**
+     * Prepara las declaraciones 'SELECT' para ser concatenadas en otra consulta
+     *
+     * @param string $table Nombre de la tabla
+     * @param array $statements Listado de declaraciones 'SELECT'
+     * @param bool $distinct Indica si se utiliza un 'DISTINCT'
+     *
+     * @return string
+     */
+    public static function select(string $table, array $statements, bool $distinct = false): string
+    {
+        if (count($statements) === 0) {
+            $statements = ['*'];
+        }
+
+        $query = 'SELECT';
+
+        // añade distinct
+        if ($distinct) {
+            $query .= ' DISTINCT';
+        }
+
+        // parsea 'as' a mayúsuculas
+        foreach ($statements as $i => $statement) {
+            $statements[$i] = str_replace(' as ', ' AS ', $statement);
+        }
+
+        // añade columnas
+        $query .= ' ' . implode(', ', $statements);
+
+        // añade 'from'
+        $query .= ' FROM ' . $table;
+
+        return $query;
+    }
+
+    /**
      * Prepara la sentencia 'INSERT' para ser concatenada en otra consulta
      *
      * @param string $table Nombre de la tabla

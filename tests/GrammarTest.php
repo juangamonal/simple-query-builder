@@ -35,6 +35,24 @@ final class GrammarTest extends TestCase
     }
 
     /**
+     * Prueba el método ->select()
+     *
+     * @return void
+     */
+    public function testSelect()
+    {
+        // prepara un 'SELECT' sencillo
+        $statements = ['email', 'name as full_name'];
+        $select = 'SELECT email, name AS full_name FROM users';
+        $this->assertEquals($select, $this->grammar->select('users', $statements));
+
+        // prepara un 'SELECT' con 'DISTINCT'
+        $statements = ['email as user_email', 'name', 'status'];
+        $select = 'SELECT DISTINCT email AS user_email, name, status FROM users';
+        $this->assertEquals($select, $this->grammar->select('users', $statements, true));
+    }
+
+    /**
      * Prueba el método ->insert()
      *
      * @return void
