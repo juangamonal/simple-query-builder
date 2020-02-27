@@ -1,21 +1,16 @@
 <?php
 
-namespace QueryBuilder\Handlers;
+namespace QueryBuilder\Grammars;
 
 use InvalidArgumentException;
 use QueryBuilder\Grammar;
-use QueryBuilder\Grammars\MySqlGrammar;
-use QueryBuilder\Grammars\OracleGrammar;
-use QueryBuilder\Grammars\PostgresGrammar;
-use QueryBuilder\Grammars\SQLiteGrammar;
-use QueryBuilder\Grammars\SqlServerGrammar;
 use QueryBuilder\Types\Engine;
 
 /**
  * Class GrammarHandler
  *
  * @author Juan Gamonal H <juangamonalh@gmail.com>
- * @package QueryBuilder\Handlers
+ * @package QueryBuilder\Grammars
  */
 final class GrammarHandler
 {

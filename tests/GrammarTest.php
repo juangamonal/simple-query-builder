@@ -52,6 +52,19 @@ final class GrammarTest extends TestCase
         $this->assertEquals($select, $this->grammar->select('users', $statements, true));
     }
 
+    public function testCount()
+    {
+        // prepara un 'COUNT' sencillo
+        $statements = ['email', 'name as full_name'];
+        $select = 'SELECT COUNT(email), COUNT(name) AS full_name FROM users';
+        $this->assertEquals($select, $this->grammar->count('users', $statements));
+
+        // prepara un 'COUNT' con 'DISTINCT'
+        $statements = ['email as user_email', 'name', 'status'];
+        $select = 'SELECT DISTINCT COUNT(email) AS user_email, COUNT(name), COUNT(status) FROM users';
+        $this->assertEquals($select, $this->grammar->count('users', $statements, true));
+    }
+
     /**
      * Prueba el método ->insert()
      *

@@ -1,16 +1,16 @@
 <?php
 
-namespace QueryBuilder\Handlers\Tests;
+namespace QueryBuilder\Grammars\Tests;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use QueryBuilder\Handlers\GrammarHandler;
+use QueryBuilder\Grammars\GrammarHandler;
 
 /**
  * Class GrammarHandlerTest
  *
  * @author Juan Gamonal H <jgamonal@ucsc.cl>
- * @package QueryBuilder\Handlers\Tests
+ * @package QueryBuilder\Grammars\Tests
  */
 final class GrammarHandlerTest extends TestCase
 {

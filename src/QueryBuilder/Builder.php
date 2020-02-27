@@ -3,8 +3,7 @@
 namespace QueryBuilder;
 
 use Exception;
-use QueryBuilder\Handlers\GrammarHandler;
-use QueryBuilder\Handlers\SelectCountHandler;
+use QueryBuilder\Grammars\GrammarHandler;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Where;
 
@@ -495,7 +494,7 @@ final class Builder
     {
         $query = '';
 
-        $query .= $count ? SelectCountHandler::prepare(
+        $query .= $count ? $this->grammar->count(
             $this->table,
             $this->counts,
             $this->distinct
