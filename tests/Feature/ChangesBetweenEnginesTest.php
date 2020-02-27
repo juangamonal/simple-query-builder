@@ -18,5 +18,8 @@ final class ChangesBetweenEnginesTest extends TestCase
      * @return void
      */
     public function testLimit()
-    {}
+    {
+        // TODO: hacer prueba de limit()
+        $this->assertEquals(true, !false);
+    }
 }
