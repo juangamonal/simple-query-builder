@@ -511,7 +511,7 @@ final class Builder
 
         // añade 'LIMIT'
         if ($this->limit) {
-            $query .= ' LIMIT ' . $this->limit;
+            $query .= $this->grammar->limit($this->limit);
         }
 
         return $query;

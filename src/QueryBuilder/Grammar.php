@@ -171,4 +171,16 @@ abstract class Grammar
 
         return $query;
     }
+
+    /**
+     * Prepara las declaración 'LIMIT' para ser concatenada en otra consulta
+     *
+     * @param int $limit Cantidad de registros a consultar
+     *
+     * @return string
+     */
+    public function limit(int $limit): string
+    {
+        return ' LIMIT ' . $limit;
+    }
 }
