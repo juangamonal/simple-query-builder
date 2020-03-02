@@ -2,7 +2,7 @@
 
 namespace QueryBuilder;
 
-use QueryBuilder\Types\Engine;
+use PDO;
 
 /**
  * Class DefaultConnection
@@ -10,42 +10,19 @@ use QueryBuilder\Types\Engine;
  * @package QueryBuilder
  * @author Juan Gamonal H <juangamonalh@gmail.com>
  */
-class DefaultConnection implements ConnectionInterface
+class DefaultConnection extends PDO
 {
-    /**
-     * Define la gramática que debe usar para crear las consultas
-     *
-     * @var string
-     */
-    private $engine;
-
     /**
      * DefaultConnection constructor.
      */
     public function __construct()
     {
-        $default = getenv('QB_DEFAULT_ENGINE');
-        $this->engine = $default ?: Engine::MYSQL;
-    }
+        $engine = getenv('QB_DEFAULT_ENGINE');
+        $host = getenv('QB_DEFAULT_HOST');
+        $db = getenv('QB_DEFAULT_DATABASE');
+        $user = getenv('QB_DEFAULT_USER');
+        $pass = getenv('QB_DEFAULT_PASSWORD');
 
-    /**
-     * Devuelve el String de conexión
-     *
-     * @return string
-     */
-    public function getConnectionString(): string
-    {
-        // TODO: Implement getConnectionString() method.
-        return 'asd';
-    }
-
-    /**
-     * Devuelve el nombre del motor asociado a la conexión
-     *
-     * @return string
-     */
-    public function getEngine(): string
-    {
-        return $this->engine;
+        parent::__construct("$engine:dbname=$db;host=$host", $user, $pass);
     }
 }

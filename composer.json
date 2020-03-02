@@ -12,6 +12,11 @@
             "src/"
         ]
     },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
+    },
     "require-dev": {
         "vlucas/phpdotenv": "^4.1",
         "phpunit/phpunit": "^8",
@@ -21,5 +26,8 @@
         "cs": "phpcs",
         "test": "phpunit"
     },
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require": {
+        "ext-pdo": "*"
+    }
 }

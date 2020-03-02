@@ -3,7 +3,7 @@
 namespace QueryBuilder;
 
 use Exception;
-use QueryBuilder\Grammars\GrammarHandler;
+use PDO;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Where;
 
@@ -30,9 +30,9 @@ final class Builder
     /**
      * Instancia de conexión a la base de datos
      *
-     * @var ConnectionInterface
+     * @var PDO
      */
-    private $connection;
+    private $pdo;
 
     /**
      * Define la gramática que debe usar para crear las consultas
@@ -111,18 +111,49 @@ final class Builder
     /**
      * Builder constructor.
      *
-     * @param ConnectionInterface|null $connection Instancia de conexión a la BDD
+     * @param PDO|null $connection Instancia de conexión a la BDD
      * @param Grammar|null $grammar Instancia de gramática de motor de BDD
      */
-    public function __construct(ConnectionInterface $connection = null, Grammar $grammar = null)
+    public function __construct(PDO $connection = null, Grammar $grammar = null)
     {
-        $this->connection = $connection ?: new DefaultConnection();
-        $this->grammar = $grammar ?: GrammarHandler::create($connection->getEngine());
+        $this->pdo = $connection ?: new DefaultConnection();
+        $this->grammar = $grammar;
     }
 
-    public function execute(): void
+    /**
+     * Ejecuta la consulta SQL según el tipo de dicha consulta
+     *
+     * @return array
+     */
+    public function execute(): array
     {
+        $sql = '';
 
+        switch ($this->type) {
+            case self::INSERT:
+                $sql = $this->getInsertSql();
+                break;
+            case self::UPDATE:
+                $sql = $this->getUpdateSql();
+                break;
+            case self::DELETE:
+                $sql = $this->getDeleteSql();
+                break;
+            case self::SELECT:
+            default:
+                $sql = $this->getSelectSql(count($this->counts) > 0);
+                break;
+        }
+
+        $result = $this->pdo->query($sql);
+
+        if (!$result) {
+            // TODO: handle error
+            // var_dump($result->errorInfo());
+            //var_dump($this->pdo->errorInfo());
+        }
+
+        return $result->fetchAll(PDO::FETCH_OBJ);
     }
 
     /**

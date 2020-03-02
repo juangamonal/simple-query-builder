@@ -3,24 +3,32 @@
 namespace QueryBuilder\Tests\Feature\Playground;
 
 use PDO;
-use PDOException;
 use PHPUnit\Framework\TestCase;
+use QueryBuilder\Builder;
+use QueryBuilder\Grammars\GrammarHandler;
+use QueryBuilder\Tests\DefaultOracleConnection;
+use QueryBuilder\Types\Engine;
 
 /**
- * Class SQLiteTest
+ * Class OracleTest
  *
  * @author Juan Gamonal H <juangamonalh@gmail.com>
  * @package QueryBuilder\Tests\Feature\Playground
  */
-final class SQLiteTest extends TestCase
+class OracleTest extends TestCase
 {
+    /**
+     * @var Builder Query Builder instance
+     */
+    private $builder;
+
     /**
      * @var PDO PDO connection
      */
     private $pdo;
 
     /**
-     * SQLiteTest constructor.
+     * OracleTest constructor.
      *
      * @param null $name
      * @param array $data
@@ -28,9 +36,13 @@ final class SQLiteTest extends TestCase
      */
     public function __construct($name = null, array $data = [], $dataName = '')
     {
-        parent::__construct($name, $data, $dataName);
+        $this->pdo = new DefaultOracleConnection();
+        $this->builder = new Builder(
+            $this->pdo,
+            GrammarHandler::create(Engine::ORACLE)
+        );
 
-        $this->pdo = new PDO('sqlite:db.sqlite');
+        parent::__construct($name, $data, $dataName);
     }
 
     /**
@@ -41,13 +53,8 @@ final class SQLiteTest extends TestCase
     public function test()
     {
         // $this->resetDatabase();
+        var_dump($this->builder);
 
         $this->assertEquals(true, !false);
-    }
-
-    // TODO
-    private function resetDatabase()
-    {
-
     }
 }

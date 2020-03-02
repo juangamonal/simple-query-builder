@@ -131,7 +131,7 @@ abstract class Grammar
 
         // itera sobre los valores y lo añade a la consulta
         foreach ($update as $index => $value) {
-            $query .= array_key_first($update) !== $index ? ',' : '';
+            $query .= key($update) !== $index ? ',' : '';
             $query .= " $index = ";
             $query .= is_string($value) ? "'$value'" : $value;
         }
@@ -156,7 +156,7 @@ abstract class Grammar
             switch ($type) {
                 case Where::AND:
                     // si es el primer elemento, no añade 'AND'
-                    if (array_key_first($clauses) !== $clause) {
+                    if (key($clauses) !== $clause) {
                         $query .= ' AND';
                     }
 
