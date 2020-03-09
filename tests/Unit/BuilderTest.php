@@ -265,22 +265,4 @@ final class BuilderTest extends TestCase
         $this->expectException(Exception::class);
         $builder->addOrWhere('another error');
     }
-
-    /**
-     * Prueba el método ->prepareWhere()
-     *
-     * @return void
-    public function testPrepareWhere()
-    {
-        // un solo where
-        $builder = Builder::table('users')
-            ->where('age > 18');
-
-        // múltiples where
-        // utilizando addWhere
-        // or where
-        // utilizando addOrWhere
-        // mezclado where y addWhere
-        // situación compleja
-    }*/
 }
