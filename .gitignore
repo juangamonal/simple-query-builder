@@ -7,5 +7,5 @@ Thumbs.db
 .php_cs.cache
 .phpunit.result.cache
 !/docs/guides
-.env
+tests/.env
 *.sqlite

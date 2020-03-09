@@ -73,7 +73,7 @@ final class GrammarTest extends TestCase
     public function testInsert()
     {
         // insert básico
-        $sql = "INSERT INTO users (name, age) VALUES ('foo bar', 25)";
+        $sql = "INSERT INTO users (name, age) VALUES (?, ?)";
         $data = [
             'name' => 'foo bar',
             'age' => 25

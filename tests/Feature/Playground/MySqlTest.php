@@ -2,54 +2,82 @@
 
 namespace QueryBuilder\Tests\Feature\Playground;
 
-use PHPUnit\Framework\TestCase;
+use Faker\Factory;
 use QueryBuilder\Builder;
-use QueryBuilder\Grammars\GrammarHandler;
-use QueryBuilder\Tests\DefaultMySqlConnection;
-use QueryBuilder\Types\Engine;
+use QueryBuilder\ConnectionBuilder;
+use QueryBuilder\Tests\Base;
 
 /**
- * Class MySqlTest
+ * Class BuilderSqlGeneratorTest
  *
  * @author Juan Gamonal H <juangamonalh@gmail.com>
  * @package QueryBuilder\Tests\Feature\Playground
  */
-class MySqlTest extends TestCase
+class MySqlTest extends Base
 {
     /**
-     * @var Builder Query Builder instance
-     */
-    private $builder;
-
-    /**
      * MySqlTest constructor.
-     *
-     * @param null $name
-     * @param array $data
-     * @param string $dataName
      */
-    public function __construct($name = null, array $data = [], $dataName = '')
+    public function __construct()
     {
-        $this->builder = new Builder(
-            new DefaultMySqlConnection(),
-            GrammarHandler::create(Engine::MYSQL)
-        );
+        parent::__construct();
 
-        parent::__construct($name, $data, $dataName);
+        $host = getenv('QB_MYSQL_HOST');
+        $db = getenv('QB_MYSQL_DATABASE');
+        $user = getenv('QB_MYSQL_USER');
+        $pass = getenv('QB_MYSQL_PASSWORD');
+
+
+        if (!$host || !$db || !$user || !$pass) {
+            // TODO: omitir prueba
+        } else {
+            $this->conn = ConnectionBuilder::create(
+                'mysql',
+                $host,
+                $db,
+                $user,
+                $pass
+            );
+            $this->builder = new Builder($this->conn);
+        }
     }
 
     /**
-     * Intenta realizar una consulta de tipo 'SELECT'
+     * Prueba un select básico
      *
      * @return void
      */
     public function testSelect()
     {
-        $sql = $this->builder->setTable('users')
+        $users = $this->builder
+            ->setTable('users')
             ->where('status = 1')
-            ->select('id', 'name', 'email')
             ->execute();
 
-        $this->assertCount(1, $sql);
+        $this->assertCount($this->qty, $users);
+    }
+
+    /**
+     * Prueba un insert básico
+     *
+     * @return void
+     */
+    public function testInsert()
+    {
+        $faker = Factory::create();
+        $this->builder
+            ->setTable('users')
+            ->insert([
+                'first_name' => $faker->firstName(),
+                'last_name' => $faker->lastName(),
+                'email' => $faker->email()
+            ])
+            ->execute();
+
+        $users = $this->builder
+            ->select()
+            ->execute();
+
+        $this->assertEquals($this->qty + 1, count($users));
     }
 }

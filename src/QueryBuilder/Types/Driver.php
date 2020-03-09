@@ -3,12 +3,12 @@
 namespace QueryBuilder\Types;
 
 /**
- * Class Engine
+ * Class Driver
  *
  * @author Juan Gamonal H <juangamonalh@gmail.com>
  * @package QueryBuilder\Types
  */
-class Engine
+class Driver
 {
     public const ORACLE = 'oracle';
     public const MYSQL = 'mysql';

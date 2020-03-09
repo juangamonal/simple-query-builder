@@ -4,7 +4,7 @@ namespace QueryBuilder\Grammars;
 
 use InvalidArgumentException;
 use QueryBuilder\Grammar;
-use QueryBuilder\Types\Engine;
+use QueryBuilder\Types\Driver;
 
 /**
  * Class GrammarHandler
@@ -23,15 +23,15 @@ final class GrammarHandler
     public static function create(string $name): Grammar
     {
         switch ($name) {
-            case Engine::ORACLE:
+            case Driver::ORACLE:
                 return new OracleGrammar();
-            case Engine::MYSQL:
+            case Driver::MYSQL:
                 return new MySqlGrammar();
-            case Engine::MSSQL:
+            case Driver::MSSQL:
                 return new SqlServerGrammar();
-            case Engine::PGSQL:
+            case Driver::PGSQL:
                 return new PostgresGrammar();
-            case Engine::SQLITE:
+            case Driver::SQLITE:
                 return new SQLiteGrammar();
             default:
                 throw new InvalidArgumentException();

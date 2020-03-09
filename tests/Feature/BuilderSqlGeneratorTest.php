@@ -10,7 +10,7 @@ use QueryBuilder\Builder;
  * Class BuilderSqlGeneratorTest
  *
  * @author Juan Gamonal H <juangamonalh@gmail.com>
- * @package QueryBuilder\Tests
+ * @package QueryBuilder\Tests\Feature
  */
 final class BuilderSqlGeneratorTest extends TestCase
 {

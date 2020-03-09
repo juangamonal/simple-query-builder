@@ -6,13 +6,12 @@ use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Builder;
-use QueryBuilder\Connection;
 
 /**
  * Class BuilderTest
  *
  * @author Juan Gamonal H <juangamonalh@gmail.com>
- * @package QueryBuilder\Tests
+ * @package QueryBuilder\Tests\Unit
  */
 final class BuilderTest extends TestCase
 {

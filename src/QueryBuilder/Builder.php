@@ -4,6 +4,7 @@ namespace QueryBuilder;
 
 use Exception;
 use PDO;
+use QueryBuilder\Grammars\GrammarHandler;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Where;
 
@@ -116,8 +117,10 @@ final class Builder
      */
     public function __construct(PDO $connection = null, Grammar $grammar = null)
     {
-        $this->pdo = $connection ?: new DefaultConnection();
-        $this->grammar = $grammar;
+        $this->pdo = $connection;
+        $this->grammar = $grammar ?: GrammarHandler::create(
+            getenv('QB_DEFAULT_DRIVER') ?: 'sqlite'
+        );
     }
 
     /**
@@ -127,6 +130,29 @@ final class Builder
      */
     public function execute(): array
     {
+        switch ($this->type) {
+            case self::INSERT:
+                $this->pdo->prepare($this->getInsertSql())
+                    ->execute(array_values($this->insert));
+
+                break;
+            case self::UPDATE:
+                $sql = $this->getUpdateSql();
+                break;
+            case self::DELETE:
+                $sql = $this->getDeleteSql();
+                break;
+            case self::SELECT:
+            default:
+                $result = $this->pdo->query(
+                    $this->getSelectSql(count($this->counts) > 0)
+                );
+
+                return $result->fetchAll(PDO::FETCH_OBJ);
+        }
+
+        return [];
+        /*
         $sql = '';
 
         switch ($this->type) {
@@ -154,6 +180,7 @@ final class Builder
         }
 
         return $result->fetchAll(PDO::FETCH_OBJ);
+        */
     }
 
     /**
@@ -508,7 +535,7 @@ final class Builder
      */
     public static function table(string $table): self
     {
-        $builder = new self(new DefaultConnection());
+        $builder = new self();
         $builder->setTable($table);
 
         return $builder;
