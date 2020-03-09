@@ -132,12 +132,14 @@ final class Builder
     {
         switch ($this->type) {
             case self::INSERT:
-                // TODO: return operation result?
+                // TODO: retornar resultado de operación?
                 $this->pdo->prepare($this->getInsertSql())
-                    ->execute(array_values($this->insert));
+                    ->execute($this->insert);
 
                 break;
             case self::UPDATE:
+                // var_dump($this->update);
+                // var_dump($this->pdo->prepare($this->getInsertSql()));
                 $this->pdo->prepare($this->getUpdateSql())
                     ->execute($this->update);
 
@@ -165,13 +167,15 @@ final class Builder
     /**
      * Convierte el Query Builder en una consulta SQL
      *
+     * @param bool $bind Utilizará binding para la query?
+     *
      * @return string
      */
-    public function toSql(): string
+    public function toSql(bool $bind = false): string
     {
         switch ($this->type) {
             case self::INSERT:
-                return $this->getInsertSql();
+                return $this->getInsertSql($bind);
             case self::UPDATE:
                 return $this->getUpdateSql();
             case self::DELETE:
@@ -557,11 +561,13 @@ final class Builder
     /**
      * Genera consulta SQL para un INSERT
      *
+     * @param bool $bind Utilizará binding para la query?
+     *
      * @return string
      */
-    private function getInsertSql(): string
+    private function getInsertSql(bool $bind = true): string
     {
-        return $this->grammar->insert($this->table, $this->insert);
+        return $this->grammar->insert($this->table, $this->insert, $bind);
     }
 
     /**
@@ -613,6 +619,7 @@ final class Builder
 
     /**
      * Convierte los párametros de una consulta en bindind
+     * TODO: falta testing para esta función
      *
      * @param array $params Parámetros a convertir en binding
      *

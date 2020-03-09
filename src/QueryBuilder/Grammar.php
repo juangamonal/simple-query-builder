@@ -98,22 +98,24 @@ abstract class Grammar
      *
      * @param string $table Nombre de la tabla
      * @param array $insert Valores a insertar
+     * @param bool $bind Utilizará binding para la query?
      *
      * @return string
      */
-    public function insert(string $table, array $insert): string
+    public function insert(string $table, array $insert, bool $bind = true): string
     {
-        $count = count($insert);
         $query = 'INSERT INTO ' . $table .
             ' (' . implode(', ', array_keys($insert)) . ') VALUES (';
 
-        if ($count > 0) {
-            foreach (range(1, $count) as $item) {
-                $query .= '?';
-
-                if ($item < $count) {
-                    $query .= ', ';
-                }
+        if ($bind) {
+            foreach (array_keys($insert) as $index => $key) {
+                $query .= ":$key";
+                $query .= $index < (count($insert) - 1) ? ', ': '';
+            }
+        } else {
+            foreach (array_values($insert) as $index => $value) {
+                $query .= is_string($value) ? "'$value'" : $value;
+                $query .= $index < (count($insert) - 1) ? ', ': '';
             }
         }
 

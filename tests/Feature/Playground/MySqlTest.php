@@ -88,17 +88,18 @@ class MySqlTest extends Base
      */
     public function testUpdate()
     {
+        $random = rand(1, 1000);
         $this->builder
             ->setTable('users')
             ->update([
-                'first_name' => 'modified',
+                'first_name' => "modified: $random",
                 'last_name' => 'user'
             ])
             ->where('users.id = 1')
             ->execute();
 
         $user = $this->builder
-            ->where("first_name = 'modified'", "last_name = 'user'")
+            ->where("first_name = 'modified: $random'", "last_name = 'user'")
             ->select()
             ->execute();
 

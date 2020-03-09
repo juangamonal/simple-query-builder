@@ -73,10 +73,29 @@ final class GrammarTest extends TestCase
     public function testInsert()
     {
         // insert básico
-        $sql = "INSERT INTO users (name, age) VALUES (?, ?)";
+        $sql = "INSERT INTO users (first_name, status) VALUES ('foo bar', 1)";
         $data = [
-            'name' => 'foo bar',
-            'age' => 25
+            'first_name' => 'foo bar',
+            'status' => 1
+        ];
+
+        $this->assertEquals($sql, $this->grammar->insert('users', $data, false));
+
+        // TODO: probar con demás tipos de datos
+    }
+
+    /**
+     * Prueba el método ->insert() con binding
+     *
+     * @return void
+     */
+    public function testInsertBind()
+    {
+        // insert básico
+        $sql = "INSERT INTO users (first_name, status) VALUES (:first_name, :status)";
+        $data = [
+            'first_name' => 'foo bar',
+            'status' => 1
         ];
 
         $this->assertEquals($sql, $this->grammar->insert('users', $data));
