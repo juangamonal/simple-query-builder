@@ -617,23 +617,4 @@ final class Builder
             throw new Exception();
         }
     }
-
-    /**
-     * Convierte los párametros de una consulta en bindind
-     * TODO: falta testing para esta función
-     *
-     * @param array $params Parámetros a convertir en binding
-     *
-     * @return array
-     */
-    private function convertParamsToBind(array $params): array
-    {
-        $new = [];
-
-        foreach ($params as $index => $param) {
-            $new[":$index"] = $param;
-        }
-
-        return $new;
-    }
 }

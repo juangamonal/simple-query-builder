@@ -155,30 +155,35 @@ abstract class Grammar
      * Prepara las cláusulas 'WHERE' para ser concatenadas en otra consulta
      *
      * @param array $clauses Listado de cláusulas 'WHERE'
+     * @param bool $bind Utilizará binding para la query
      *
      * @return string
      */
-    public function where(array $clauses): string
+    public function where(array $clauses, $bind = true): string
     {
         // TODO: manejar sub queries y todo eso
         $query = 'WHERE';
 
-        foreach ($clauses as $clause => $type) {
-            // maneja 'WHERE' según $type
-            switch ($type) {
-                case Where::AND:
-                    // si es el primer elemento, no añade 'AND'
-                    if (key($clauses) !== $clause) {
-                        $query .= ' AND';
-                    }
+        if ($bind) {
+            // TODO: desarrollar binding para where
+        } else {
+            foreach ($clauses as $clause => $type) {
+                // maneja 'WHERE' según $type
+                switch ($type) {
+                    case Where::AND:
+                        // si es el primer elemento, no añade 'AND'
+                        if (key($clauses) !== $clause) {
+                            $query .= ' AND';
+                        }
 
-                    break;
-                case Where::OR:
-                    $query .= ' OR';
-                    break;
+                        break;
+                    case Where::OR:
+                        $query .= ' OR';
+                        break;
+                }
+
+                $query .= " $clause";
             }
-
-            $query .= " $clause";
         }
 
         return $query;
