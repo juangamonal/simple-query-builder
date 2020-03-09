@@ -92,7 +92,7 @@ final class GrammarTest extends TestCase
     public function testUpdate()
     {
         // insert básico
-        $sql = "UPDATE users SET age = 25, email = 'foo@bar'";
+        $sql = "UPDATE users SET age = :age, email = :email";
         $data = [
             'age' => 25,
             'email' => 'foo@bar'

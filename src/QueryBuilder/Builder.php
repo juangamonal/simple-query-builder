@@ -126,61 +126,40 @@ final class Builder
     /**
      * Ejecuta la consulta SQL según el tipo de dicha consulta
      *
-     * @return array
+     * @return array|object
      */
-    public function execute(): array
+    public function execute()
     {
         switch ($this->type) {
             case self::INSERT:
+                // TODO: return operation result?
                 $this->pdo->prepare($this->getInsertSql())
                     ->execute(array_values($this->insert));
 
                 break;
             case self::UPDATE:
-                $sql = $this->getUpdateSql();
+                $this->pdo->prepare($this->getUpdateSql())
+                    ->execute($this->update);
+
                 break;
             case self::DELETE:
                 $sql = $this->getDeleteSql();
                 break;
             case self::SELECT:
             default:
+                $data = [];
                 $result = $this->pdo->query(
                     $this->getSelectSql(count($this->counts) > 0)
                 );
 
-                return $result->fetchAll(PDO::FETCH_OBJ);
+                while ($r = $result->fetch(PDO::FETCH_OBJ)) {
+                    array_push($data, $r);
+                }
+
+                return $data;
         }
 
         return [];
-        /*
-        $sql = '';
-
-        switch ($this->type) {
-            case self::INSERT:
-                $sql = $this->getInsertSql();
-                break;
-            case self::UPDATE:
-                $sql = $this->getUpdateSql();
-                break;
-            case self::DELETE:
-                $sql = $this->getDeleteSql();
-                break;
-            case self::SELECT:
-            default:
-                $sql = $this->getSelectSql(count($this->counts) > 0);
-                break;
-        }
-
-        $result = $this->pdo->query($sql);
-
-        if (!$result) {
-            // TODO: handle error
-            // var_dump($result->errorInfo());
-            //var_dump($this->pdo->errorInfo());
-        }
-
-        return $result->fetchAll(PDO::FETCH_OBJ);
-        */
     }
 
     /**
@@ -630,5 +609,23 @@ final class Builder
         if (count(array_filter($this->wheres)) === 0) {
             throw new Exception();
         }
+    }
+
+    /**
+     * Convierte los párametros de una consulta en bindind
+     *
+     * @param array $params Parámetros a convertir en binding
+     *
+     * @return array
+     */
+    private function convertParamsToBind(array $params): array
+    {
+        $new = [];
+
+        foreach ($params as $index => $param) {
+            $new[":$index"] = $param;
+        }
+
+        return $new;
     }
 }

@@ -107,13 +107,6 @@ abstract class Grammar
         $query = 'INSERT INTO ' . $table .
             ' (' . implode(', ', array_keys($insert)) . ') VALUES (';
 
-        // itera sobre los valores y lo añade a la consulta TODO
-        /*
-        foreach (array_values($insert) as $index => $value) {
-            $query .= is_string($value) ? "'$value'" : $value;
-            $query .= $index < (count($insert) - 1) ? ', ': '';
-        }
-        */
         if ($count > 0) {
             foreach (range(1, $count) as $item) {
                 $query .= '?';
@@ -145,7 +138,7 @@ abstract class Grammar
         foreach ($update as $index => $value) {
             $query .= key($update) !== $index ? ',' : '';
             $query .= " $index = ";
-            $query .= is_string($value) ? "'$value'" : $value;
+            $query .= ":$index";
         }
 
         return $query;

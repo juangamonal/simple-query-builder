@@ -80,4 +80,28 @@ class MySqlTest extends Base
 
         $this->assertEquals($this->qty + 1, count($users));
     }
+
+    /**
+     * Prueba un update básico
+     *
+     * @return void
+     */
+    public function testUpdate()
+    {
+        $this->builder
+            ->setTable('users')
+            ->update([
+                'first_name' => 'modified',
+                'last_name' => 'user'
+            ])
+            ->where('users.id = 1')
+            ->execute();
+
+        $user = $this->builder
+            ->where("first_name = 'modified'", "last_name = 'user'")
+            ->select()
+            ->execute();
+
+        $this->assertCount(1, $user);
+    }
 }
