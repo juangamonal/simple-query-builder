@@ -111,6 +111,25 @@ final class GrammarTest extends TestCase
     public function testUpdate()
     {
         // insert básico
+        $sql = "UPDATE users SET status = 0, email = 'foo@bar'";
+        $data = [
+            'status' => 0,
+            'email' => 'foo@bar'
+        ];
+
+        $this->assertEquals($sql, $this->grammar->update('users', $data, false));
+
+        // TODO: probar con demás tipos de datos
+    }
+
+    /**
+     * Prueba el método ->update() con binding
+     *
+     * @return void
+     */
+    public function testUpdateBinding()
+    {
+        // insert básico
         $sql = "UPDATE users SET age = :age, email = :email";
         $data = [
             'age' => 25,

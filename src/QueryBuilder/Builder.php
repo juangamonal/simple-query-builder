@@ -138,8 +138,7 @@ final class Builder
 
                 break;
             case self::UPDATE:
-                // var_dump($this->update);
-                // var_dump($this->pdo->prepare($this->getInsertSql()));
+                // TODO: retornar resultado de operación?
                 $this->pdo->prepare($this->getUpdateSql())
                     ->execute($this->update);
 
@@ -177,7 +176,7 @@ final class Builder
             case self::INSERT:
                 return $this->getInsertSql($bind);
             case self::UPDATE:
-                return $this->getUpdateSql();
+                return $this->getUpdateSql($bind);
             case self::DELETE:
                 return $this->getDeleteSql();
             case self::SELECT:
@@ -573,11 +572,13 @@ final class Builder
     /**
      * Genera consulta SQL para un UPDATE
      *
+     * @param bool $bind Utilizará binding para la query?
+     *
      * @return string
      */
-    private function getUpdateSql(): string
+    private function getUpdateSql(bool $bind = true): string
     {
-        $query = $this->grammar->update($this->table, $this->update);
+        $query = $this->grammar->update($this->table, $this->update, $bind);
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {

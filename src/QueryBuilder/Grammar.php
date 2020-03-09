@@ -129,18 +129,23 @@ abstract class Grammar
      *
      * @param string $table Nombre de la tabla
      * @param array $update Valores a modificar
+     * @param bool $bind Utilizará binding para la query
      *
      * @return string
      */
-    public function update(string $table, array $update): string
+    public function update(string $table, array $update, bool $bind = true): string
     {
         $query = 'UPDATE ' . $table . ' SET';
 
-        // itera sobre los valores y lo añade a la consulta
         foreach ($update as $index => $value) {
             $query .= key($update) !== $index ? ',' : '';
             $query .= " $index = ";
-            $query .= ":$index";
+
+            if ($bind) {
+                $query .= ":$index";
+            } else {
+                $query .= is_string($value) ? "'$value'" : $value;
+            }
         }
 
         return $query;
