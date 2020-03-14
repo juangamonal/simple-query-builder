@@ -5,7 +5,9 @@ namespace QueryBuilder;
 use Exception;
 use PDO;
 use QueryBuilder\Grammars\GrammarHandler;
+use QueryBuilder\Syntax\Join;
 use QueryBuilder\Syntax\Validator;
+use QueryBuilder\Types\Query;
 use QueryBuilder\Types\Where;
 
 /**
@@ -16,17 +18,12 @@ use QueryBuilder\Types\Where;
  */
 final class Builder
 {
-    public const SELECT = 0;
-    public const INSERT = 1;
-    public const UPDATE = 2;
-    public const DELETE = 3;
-
     /**
      * Tipo de Query según las constantes de arriba
      *
      * @var int
      */
-    private $type = self::SELECT;
+    private $type = Query::SELECT;
 
     /**
      * Instancia de conexión a la base de datos
@@ -131,22 +128,22 @@ final class Builder
     public function execute()
     {
         switch ($this->type) {
-            case self::INSERT:
+            case Query::INSERT:
                 // TODO: retornar resultado de operación?
                 $this->pdo->prepare($this->getInsertSql())
                     ->execute($this->insert);
 
                 break;
-            case self::UPDATE:
+            case Query::UPDATE:
                 // TODO: retornar resultado de operación?
                 $this->pdo->prepare($this->getUpdateSql())
                     ->execute($this->update);
 
                 break;
-            case self::DELETE:
+            case Query::DELETE:
                 $sql = $this->getDeleteSql();
                 break;
-            case self::SELECT:
+            case Query::SELECT:
             default:
                 /* TODO: arreglar esto
                 $data = [];
@@ -176,13 +173,13 @@ final class Builder
     public function toSql(bool $bind = false): string
     {
         switch ($this->type) {
-            case self::INSERT:
+            case Query::INSERT:
                 return $this->getInsertSql($bind);
-            case self::UPDATE:
+            case Query::UPDATE:
                 return $this->getUpdateSql($bind);
-            case self::DELETE:
+            case Query::DELETE:
                 return $this->getDeleteSql();
-            case self::SELECT:
+            case Query::SELECT:
             default:
                 return $this->getSelectSql(count($this->counts) > 0);
         }
@@ -203,7 +200,7 @@ final class Builder
             $statements = ['*'];
         }
 
-        $this->type = self::SELECT;
+        $this->type = Query::SELECT;
         $this->selects = Validator::select($statements);
 
         return $this;
@@ -218,7 +215,7 @@ final class Builder
      */
     public function addSelect(string ...$statements): self
     {
-        $this->type = self::SELECT;
+        $this->type = Query::SELECT;
         $this->selects = array_merge($this->selects, Validator::select($statements));
 
         return $this;
@@ -231,7 +228,7 @@ final class Builder
      */
     public function distinct(): self
     {
-        $this->type = self::SELECT;
+        $this->type = Query::SELECT;
         $this->distinct = true;
 
         return $this;
@@ -246,7 +243,7 @@ final class Builder
      */
     public function limit(int $limit): self
     {
-        $this->type = self::SELECT;
+        $this->type = Query::SELECT;
         $this->limit = $limit;
 
         return $this;
@@ -267,7 +264,7 @@ final class Builder
             $statements = ['*'];
         }
 
-        $this->type = self::SELECT;
+        $this->type = Query::SELECT;
         $this->counts = Validator::select($statements);
 
         return $this;
@@ -282,7 +279,7 @@ final class Builder
      */
     public function addCount(string ...$statements): self
     {
-        $this->type = self::SELECT;
+        $this->type = Query::SELECT;
         $this->counts = array_merge($this->counts, Validator::select($statements));
 
         return $this;
@@ -297,7 +294,7 @@ final class Builder
      */
     public function insert(array $values): self
     {
-        $this->type = self::INSERT;
+        $this->type = Query::INSERT;
         $this->insert = Validator::insert($values);
 
         return $this;
@@ -312,7 +309,7 @@ final class Builder
      */
     public function update(array $values): self
     {
-        $this->type = self::UPDATE;
+        $this->type = Query::UPDATE;
         $this->update = Validator::insert($values);
 
         return $this;
@@ -325,13 +322,25 @@ final class Builder
      */
     public function delete(): self
     {
-        $this->type = self::DELETE;
+        $this->type = Query::DELETE;
 
         return $this;
     }
 
-    public function join(): self
+    /**
+     * Añade un join a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'join'
+     * @param string $condition Condición del 'join'
+     *
+     * @return $this
+     */
+    public function join(string $table, string $condition): self
     {
+        $this->type = Query::SELECT;
+
+        array_push($this->joins, Join::create($table, $condition));
+
         return $this;
     }
 
