@@ -1,6 +1,6 @@
 {
     "name": "juangamonal/simple-query-builder",
-    "description": "API sencilla y moderna para generar consultas SQL",
+    "description": "API moderna y sencilla que facilita la construcción y ejecución de consultas SQL sobre PDO",
     "authors": [
         {
             "name": "Juan Gamonal H",
