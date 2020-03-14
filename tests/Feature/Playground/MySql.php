@@ -8,7 +8,8 @@ use QueryBuilder\ConnectionBuilder;
 use QueryBuilder\Tests\Base;
 
 /**
- * Class BuilderSqlGeneratorTest
+ * Class MySqlTest
+ * TODO: implementar
  *
  * @author Juan Gamonal H <juangamonalh@gmail.com>
  * @package QueryBuilder\Tests\Feature\Playground

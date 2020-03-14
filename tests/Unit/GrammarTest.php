@@ -151,16 +151,44 @@ final class GrammarTest extends TestCase
         // where básico
         $data = ['status = 1' => Where::AND];
         $where = 'WHERE status = 1';
-        $this->assertEquals($where, $this->grammar->where($data));
+        $this->assertEquals($where, $this->grammar->where($data, false));
 
         // where con múltiples 'AND'
         $data = ['status = 1' => Where::AND, 'age < 18' => Where::AND, 'age > 0' => Where::AND];
         $where = 'WHERE status = 1 AND age < 18 AND age > 0';
-        $this->assertEquals($where, $this->grammar->where($data));
+        $this->assertEquals($where, $this->grammar->where($data, false));
 
         // where y 'OR' where
         $data = ['status = 1' => Where::AND, 'deleted = 0' => Where::OR];
         $where = 'WHERE status = 1 OR deleted = 0';
+        $this->assertEquals($where, $this->grammar->where($data, false));
+    }
+
+    /**
+     * Prueba el método ->where() con binding
+     *
+     * @return void
+     */
+    public function testWhereBinding()
+    {
+        // where básico
+        $data = ['status = 1' => Where::AND];
+        $where = 'WHERE status = :status';
+        $this->assertEquals($where, $this->grammar->where($data));
+
+        // where con múltiples 'AND'
+        $data = ['status = 1' => Where::AND, 'age < 18' => Where::AND, 'name like juan' => Where::AND];
+        $where = 'WHERE status = :status AND age < :age AND name like :name';
+        $this->assertEquals($where, $this->grammar->where($data));
+
+        // TODO: probar con múltiple binding
+        // $data = ['status = 1' => Where::AND, 'age < 18' => Where::AND, 'age > 0' => Where::AND];
+        // $where = 'WHERE status = :status AND age < :age AND age > :age2';
+        // $this->assertEquals($where, $this->grammar->where($data));
+
+        // where y 'OR' where
+        $data = ['status = 1' => Where::AND, 'deleted = 0' => Where::OR];
+        $where = 'WHERE status = :status OR deleted = :deleted';
         $this->assertEquals($where, $this->grammar->where($data));
     }
 }

@@ -148,6 +148,7 @@ final class Builder
                 break;
             case self::SELECT:
             default:
+                /* TODO: arreglar esto
                 $data = [];
                 $result = $this->pdo->query(
                     $this->getSelectSql(count($this->counts) > 0)
@@ -158,6 +159,8 @@ final class Builder
                 }
 
                 return $data;
+                */
+                return [];
         }
 
         return [];

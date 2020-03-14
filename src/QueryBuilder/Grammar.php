@@ -164,24 +164,25 @@ abstract class Grammar
         // TODO: manejar sub queries y todo eso
         $query = 'WHERE';
 
-        if ($bind) {
-            // TODO: desarrollar binding para where
-        } else {
-            foreach ($clauses as $clause => $type) {
-                // maneja 'WHERE' según $type
-                switch ($type) {
-                    case Where::AND:
-                        // si es el primer elemento, no añade 'AND'
-                        if (key($clauses) !== $clause) {
-                            $query .= ' AND';
-                        }
+        foreach ($clauses as $clause => $type) {
+            // maneja 'WHERE' según $type
+            switch ($type) {
+                case Where::AND:
+                    // si es el primer elemento, no añade 'AND'
+                    if (key($clauses) !== $clause) {
+                        $query .= ' AND';
+                    }
 
-                        break;
-                    case Where::OR:
-                        $query .= ' OR';
-                        break;
-                }
+                    break;
+                case Where::OR:
+                    $query .= ' OR';
+                    break;
+            }
 
+            if ($bind) {
+                $c = explode(' ', $clause);
+                $query .= sprintf(' %s %s :%s', $c[0], $c[1], $c[0]);
+            } else {
                 $query .= " $clause";
             }
         }
