@@ -1,5 +1,5 @@
 {
-    "name": "juangamonal/simple-query-builder",
+    "name": "juangamonal/sqb",
     "description": "API moderna y sencilla que facilita la construcción y ejecución de consultas SQL sobre PDO",
     "authors": [
         {
