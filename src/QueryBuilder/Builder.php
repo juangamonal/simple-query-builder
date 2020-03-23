@@ -5,7 +5,6 @@ namespace QueryBuilder;
 use Exception;
 use PDO;
 use QueryBuilder\Grammars\GrammarHandler;
-use QueryBuilder\Syntax\Join;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Query;
 use QueryBuilder\Types\Where;
@@ -79,7 +78,9 @@ final class Builder
      *
      * @var array
      */
+    /*
     private $joins = [];
+    */
 
     /**
      * Array de datos para la consulta 'INSERT'
@@ -103,8 +104,10 @@ final class Builder
     private $wheres = [];
 
     // TODO: documentar
+    /*
     private $groupBy = [];
     private $orderBy = [];
+    */
 
     /**
      * Builder constructor.
@@ -335,6 +338,7 @@ final class Builder
      *
      * @return $this
      */
+    /*
     public function join(string $table, string $condition): self
     {
         $this->type = Query::SELECT;
@@ -353,6 +357,7 @@ final class Builder
     {
         return $this;
     }
+    */
 
     /**
      * Asigna cláusulas para realizar 'WHERE'
@@ -416,12 +421,8 @@ final class Builder
         return $this;
     }
 
+    /*
     public function groupBy(): self
-    {
-        return $this;
-    }
-
-    public function addGroupBy(): self
     {
         return $this;
     }
@@ -430,11 +431,7 @@ final class Builder
     {
         return $this;
     }
-
-    public function addOrderBy(): self
-    {
-        return $this;
-    }
+    */
 
     /**
      * Obtiene el nombre de la tabla
