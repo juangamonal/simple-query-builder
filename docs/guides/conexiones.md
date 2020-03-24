@@ -12,7 +12,7 @@ $builder = Builder::table('users');
 // no requiere conexión, imprime 'SELECT * FROM users'
 echo $builder->toSql();
 
-// si que requiere conexión, ejecuta la consulta 'SELECT * FROM users'
+// si requiere conexión, ejecuta la consulta 'SELECT * FROM users'
 $results = $builder->execute();
 ``` 
  
