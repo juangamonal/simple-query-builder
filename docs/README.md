@@ -16,4 +16,8 @@ Las guías explican el funcionamiento del Query Builder. Cada apartado ofrece un
 
 ## API
 
-TODO:
+Contiene la documentación de las clases y objetos utilizados en la construcción de SQB. Para poder generar la documentación debes ejecutar el siguiente comando:
+
+```sh
+composer run docs
+```
