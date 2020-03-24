@@ -2,9 +2,11 @@ language: php
 php:
   - '7.2'
 
-before_script: composer install
-# script: composer run cs, composer run test
-# after_success: composer run docs
+before_script:
+  - composer install
+  - composer run cs
+
+after_success: composer run docs
 
 deploy:
   - provider: pages
@@ -17,7 +19,9 @@ deploy:
   - provider: releases
     api_key: $GITHUB_TOKEN
     file_glob: true
-    file: "sqb-*.tgz"
+    file:
+      - "sqb-*.tgz"
+      - docs/api/**/*
     skip_cleanup: true
     on:
       tags: true

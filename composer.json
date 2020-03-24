@@ -23,7 +23,7 @@
     },
     "scripts": {
         "cs": "phpcs",
-        "docs": "phpdocs",
+        "docs": "test ! -f sami.phar && wget http://get.sensiolabs.org/sami.phar; php sami.phar update sami-config.php --force",
         "test": "phpunit"
     },
     "prefer-stable": true,

@@ -6,6 +6,9 @@ Thumbs.db
 .php_cs
 .php_cs.cache
 .phpunit.result.cache
+/cache
+sami.phar
+/docs/api
 !/docs/guides
 tests/.env
 *.sqlite
