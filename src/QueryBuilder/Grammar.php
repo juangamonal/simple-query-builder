@@ -84,7 +84,7 @@ abstract class Grammar
                 $query .= " COUNT($statement)";
             }
 
-            $query .= $index < (count($statements) - 1) ? ',': '';
+            $query .= $index < (count($statements) - 1) ? ',' : '';
         }
 
         // añade 'from'
@@ -110,12 +110,12 @@ abstract class Grammar
         if ($bind) {
             foreach (array_keys($insert) as $index => $key) {
                 $query .= ":$key";
-                $query .= $index < (count($insert) - 1) ? ', ': '';
+                $query .= $index < (count($insert) - 1) ? ', ' : '';
             }
         } else {
             foreach (array_values($insert) as $index => $value) {
                 $query .= is_string($value) ? "'$value'" : $value;
-                $query .= $index < (count($insert) - 1) ? ', ': '';
+                $query .= $index < (count($insert) - 1) ? ', ' : '';
             }
         }
 
