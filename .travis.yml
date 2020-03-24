@@ -2,7 +2,7 @@ language: php
 php:
   - '7.2'
 
-# before_script: composer install
+before_script: composer install
 # script: composer run cs, composer run test
 # after_success: composer run docs
 
