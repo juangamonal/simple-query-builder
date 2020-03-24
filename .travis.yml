@@ -1,0 +1,23 @@
+language: php
+php:
+  - '7.2'
+
+# before_script: composer install
+# script: composer run cs, composer run test
+# after_success: composer run docs
+
+deploy:
+  - provider: pages
+    skip_cleanup: true
+    local_dir: docs/api/
+    github_token: $GITHUB_TOKEN
+    on:
+      tags: true
+
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file_glob: true
+    file: "sqb-*.tgz"
+    skip_cleanup: true
+    on:
+      tags: true
