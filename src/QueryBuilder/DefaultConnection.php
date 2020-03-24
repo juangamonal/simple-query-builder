@@ -15,14 +15,15 @@ class DefaultConnection extends PDO
 {
     /**
      * DefaultConnection constructor.
+     * TODO: en algún punto debe lanzar UndefinedConnectionException
      */
     public function __construct()
     {
-        $driver = getenv('QB_DEFAULT_DRIVER');
-        $host = getenv('QB_DEFAULT_HOST');
-        $db = getenv('QB_DEFAULT_DATABASE');
-        $user = getenv('QB_DEFAULT_USER');
-        $pass = getenv('QB_DEFAULT_PASSWORD');
+        $driver = getenv('SQB_DEFAULT_DRIVER');
+        $host = getenv('SQB_DEFAULT_HOST');
+        $db = getenv('SQB_DEFAULT_DATABASE');
+        $user = getenv('SQB_DEFAULT_USER');
+        $pass = getenv('SQB_DEFAULT_PASSWORD');
 
         try {
             parent::__construct("$driver:dbname=$db;host=$host", $user, $pass);

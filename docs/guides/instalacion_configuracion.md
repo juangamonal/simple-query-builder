@@ -1,55 +1,26 @@
+# Instalación y configuración
+
 ```php
 <?php
 
 use QueryBuilder\Builder;
 
-// builder totalmente vacío
+// instancia de la clase 'Builder'
 $builder = new Builder();
-
-// builder con una tabla por defecto
-$builder = new Builder('nombretabla');
+$builder->setTable('users');
 
 // alternativa...
-$builder = Builder::table('nombretabla');
+$builder = Builder::table('users');
 ```
 
-La última opción es recomendada cuando se desea encadenar métodos, por ejemplo:
+La segunda opción es recomendada cuando se desea encadenar métodos, por ejemplo:
 
 ```php
 <?php
 
 use QueryBuilder\Builder;
 
-// permite encadenar métodos
-$builder = Builder::table('nombretabla')
-    ->select('columna')
+$builder = Builder::table('users')
+    ->select('first_name as name')
     ->where(...);
-```
-
-Por defecto cuando no se especifica una conexión, Query Builder utilizará la conexión <b>*default*</b> del proyecto. Una conexión válida debe implementar la interfaz `QueryBuilder\ConnectionInterface`:
-
-```php
-<?php
-
-use QueryBuilder\ConnectionInterface;
-
-class MiConexion implements ConnectionInterface
-{
-    public function getConnectionString(): string
-    {
-        return 'tns:connection';
-    }
-}
-```
-
-```php
-<?php
-
-use MiConexion;
-use QueryBuilder\Builder;
-
-...
-
-$conn = new MiConexion();
-$builder = new Builder('nombretabla', $conn);
 ```

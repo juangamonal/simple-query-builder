@@ -4,7 +4,6 @@ namespace QueryBuilder;
 
 use Exception;
 use PDO;
-use QueryBuilder\Exceptions\UndefinedConnectionException;
 use QueryBuilder\Exceptions\UndefinedTableNameException;
 use QueryBuilder\Grammars\GrammarHandler;
 use QueryBuilder\Syntax\Validator;
@@ -128,7 +127,6 @@ final class Builder
     /**
      * Ejecuta la consulta SQL según el tipo de dicha consulta
      *
-     * @throws UndefinedConnectionException
      * @throws UndefinedTableNameException
      * @return array|object
      */
@@ -545,13 +543,12 @@ final class Builder
     /**
      * Verifica si tiene conexión PDO
      *
-     * @throws UndefinedConnectionException
      * @return void
      */
     private function checkConnection(): void
     {
         if (!$this->pdo) {
-            throw new UndefinedConnectionException();
+            $this->pdo = new DefaultConnection();
         }
     }
 
