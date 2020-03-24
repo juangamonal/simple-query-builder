@@ -8,7 +8,11 @@ TODO: utiliza tal y tal driver, tal version de php y extensiones a usar, etc
 
 ## Instalación
 
-TODO: composer install
+```sh
+composer require juangamonal/sqb
+```
+
+**Nota**: para esta versión `alpha` de SQB vas a necesitar indicar en tu archivo `composer.json` la propiedad `minimum-stability` en `dev`.
 
 ## Uso
 ```php

@@ -4,6 +4,8 @@ namespace QueryBuilder;
 
 use Exception;
 use PDO;
+use QueryBuilder\Exceptions\UndefinedConnectionException;
+use QueryBuilder\Exceptions\UndefinedTableNameException;
 use QueryBuilder\Grammars\GrammarHandler;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Query;
@@ -112,12 +114,12 @@ final class Builder
     /**
      * Builder constructor.
      *
-     * @param PDO|null $connection Instancia de conexión a la BDD
+     * @param PDO|null $pdo Instancia de conexión a la BDD
      * @param Grammar|null $grammar Instancia de gramática de motor de BDD
      */
-    public function __construct(PDO $connection = null, Grammar $grammar = null)
+    public function __construct(PDO $pdo = null, Grammar $grammar = null)
     {
-        $this->pdo = $connection;
+        $this->pdo = $pdo;
         $this->grammar = $grammar ?: GrammarHandler::create(
             getenv('QB_DEFAULT_DRIVER') ?: 'sqlite'
         );
@@ -126,10 +128,15 @@ final class Builder
     /**
      * Ejecuta la consulta SQL según el tipo de dicha consulta
      *
+     * @throws UndefinedConnectionException
+     * @throws UndefinedTableNameException
      * @return array|object
      */
     public function execute()
     {
+        $this->checkTableName();
+        $this->checkConnection();
+
         switch ($this->type) {
             case Query::INSERT:
                 // TODO: retornar resultado de operación?
@@ -171,10 +178,13 @@ final class Builder
      *
      * @param bool $bind Utilizará binding para la query?
      *
+     * @throws UndefinedTableNameException
      * @return string
      */
     public function toSql(bool $bind = false): string
     {
+        $this->checkTableName();
+
         switch ($this->type) {
             case Query::INSERT:
                 return $this->getInsertSql($bind);
@@ -530,6 +540,32 @@ final class Builder
         $builder->setTable($table);
 
         return $builder;
+    }
+
+    /**
+     * Verifica si tiene conexión PDO
+     *
+     * @throws UndefinedConnectionException
+     * @return void
+     */
+    private function checkConnection(): void
+    {
+        if (!$this->pdo) {
+            throw new UndefinedConnectionException();
+        }
+    }
+
+    /**
+     * Verifica si tiene nombre de tabla
+     *
+     * @throws UndefinedTableNameException
+     * @return void
+     */
+    private function checkTableName(): void
+    {
+        if (!$this->table) {
+            throw new UndefinedTableNameException();
+        }
     }
 
     /**
