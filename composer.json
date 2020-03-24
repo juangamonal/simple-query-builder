@@ -18,10 +18,7 @@
         ]
     },
     "require-dev": {
-        "vlucas/phpdotenv": "^4.1",
-        "phpunit/phpunit": "^8",
-        "ext-pdo": "*",
-        "fzaninotto/faker": "^1.9"
+        "phpunit/phpunit": "^8"
     },
     "scripts": {
         "cs": "phpcs",
