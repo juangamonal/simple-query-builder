@@ -1,4 +1,4 @@
-# Simple Query Builder
+# Simple Query Builder ![build](https://travis-ci.org/juangamonal/simple-query-builder.svg?branch=master)
 
 Simple Query Builder (SQB) es una delgada capa sobre [PDO](https://www.php.net/manual/es/book.pdo.php) que provee mecanismos para simplificar la construcción y ejecución de consultas SQL. Se ejecuta a través de una API moderna inspirada en las mejores prácticas de otras librerías del mismo propósito. Cuenta con un manejador sencillo de conexiones basado en variables de entorno.
 
