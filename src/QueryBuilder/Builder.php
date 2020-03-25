@@ -150,22 +150,22 @@ final class Builder
                 break;
             case Query::DELETE:
                 $sql = $this->getDeleteSql();
+
+                // TODO: ejecutar delete
                 break;
             case Query::SELECT:
             default:
-                /* TODO: arreglar esto
+                // TODO: arreglar esto
                 $data = [];
                 $result = $this->pdo->query(
-                    $this->getSelectSql(count($this->counts) > 0)
+                    $this->getSelectSql(count($this->counts) > 0, false)
                 );
 
-                while ($r = $result->fetch(PDO::FETCH_OBJ)) {
+                while ($r = $result->fetch()) {
                     array_push($data, $r);
                 }
 
                 return $data;
-                */
-                return [];
         }
 
         return [];
@@ -569,10 +569,11 @@ final class Builder
      * Genera consulta SQL para un SELECT
      *
      * @param bool $count Verifica si debe preparar la consulta para un 'COUNT'
+     * @param bool $bind Utilizará binding para la query?
      *
      * @return string
      */
-    private function getSelectSql(bool $count = false): string
+    private function getSelectSql(bool $count = false, bool $bind = true): string
     {
         $query = '';
 
@@ -588,7 +589,7 @@ final class Builder
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
-            $query .= ' ' . $this->grammar->where($this->wheres);
+            $query .= ' ' . $this->grammar->where($this->wheres, $bind);
         }
 
         // añade 'LIMIT'
