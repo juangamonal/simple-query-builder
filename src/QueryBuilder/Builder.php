@@ -135,6 +135,8 @@ final class Builder
         $this->checkTableName();
         $this->checkConnection();
 
+        // TODO: binding para todas las operacione
+
         switch ($this->type) {
             case Query::INSERT:
                 // TODO: retornar resultado de operación?
@@ -143,25 +145,31 @@ final class Builder
 
                 break;
             case Query::UPDATE:
+                /*
                 // TODO: retornar resultado de operación?
-                $this->pdo->prepare($this->getUpdateSql())
+                $this->pdo->prepare($this->getUpdateSql(false))
                     ->execute($this->update);
+                */
+                $this->pdo->query($this->getUpdateSql(false));
 
                 break;
             case Query::DELETE:
-                $sql = $this->getDeleteSql();
+                /*
+                // TODO: retornar resultado de operación?
+                $this->pdo->prepare($this->getUpdateSql(false))
+                    ->execute($this->update);
+                */
+                $this->pdo->query($this->getDeleteSql(false));
 
-                // TODO: ejecutar delete
                 break;
             case Query::SELECT:
             default:
-                // TODO: arreglar esto
                 $data = [];
                 $result = $this->pdo->query(
                     $this->getSelectSql(count($this->counts) > 0, false)
                 );
 
-                while ($r = $result->fetch()) {
+                while ($r = $result->fetch(PDO::FETCH_OBJ)) {
                     array_push($data, $r);
                 }
 
@@ -625,7 +633,7 @@ final class Builder
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
-            $query .= ' ' . $this->grammar->where($this->wheres);
+            $query .= ' ' . $this->grammar->where($this->wheres, $bind);
         }
 
         return $query;
@@ -634,15 +642,17 @@ final class Builder
     /**
      * Genera consulta SQL para un DELETE
      *
+     * @param bool $bind Utilizará binding para la query?
+     *
      * @return string
      */
-    private function getDeleteSql(): string
+    private function getDeleteSql(bool $bind = true): string
     {
         $query = 'DELETE FROM ' . $this->table;
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
-            $query .= ' ' . $this->grammar->where($this->wheres);
+            $query .= ' ' . $this->grammar->where($this->wheres, $bind);
         }
 
         return $query;
