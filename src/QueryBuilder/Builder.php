@@ -132,7 +132,7 @@ final class Builder
      */
     public function execute()
     {
-        $this->checkTableName();
+        // $this->checkTableName();
         $this->checkConnection();
 
         // TODO: binding para todas las operacione
@@ -531,6 +531,16 @@ final class Builder
     public function getWheres(): array
     {
         return $this->wheres;
+    }
+
+    /**
+     * Obtiene instancia de PDO usaba en Query Builder
+     *
+     * @return PDO
+     */
+    public function getPDO(): PDO
+    {
+        return $this->pdo;
     }
 
     /**
