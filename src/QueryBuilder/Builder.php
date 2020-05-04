@@ -127,7 +127,6 @@ final class Builder
     /**
      * Ejecuta la consulta SQL según el tipo de dicha consulta
      *
-     * @throws UndefinedTableNameException
      * @return array|object
      */
     public function execute()
