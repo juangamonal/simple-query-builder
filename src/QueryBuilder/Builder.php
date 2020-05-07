@@ -91,6 +91,13 @@ final class Builder
     private $insert = [];
 
     /**
+     * Solicita ID al insertar
+     *
+     * @var bool
+     */
+    private $insertGetId = false;
+
+    /**
      * Array de datos para la consulta 'UPDATE'
      *
      * @var array
@@ -176,6 +183,24 @@ final class Builder
         }
 
         return [];
+    }
+
+    /**
+     * Prepara una consulta para obtener el primer resultado
+     *
+     * @return object
+     */
+    public function first()
+    {
+        $this->type = Query::SELECT;
+
+        // TODO: DRY
+        $result = $this->pdo->query(
+            $this->getSelectSql(count($this->counts) > 0, false)
+        );
+
+        // TODO: sacar [0]
+        return $result->fetch(PDO::FETCH_OBJ)[0];
     }
 
     /**
@@ -316,6 +341,20 @@ final class Builder
         $this->insert = Validator::insert($values);
 
         return $this;
+    }
+
+    /**
+     * Añade una fila para nueva inserción y solicita ID creado
+     *
+     * @param array $values Llave-valor para columna y valor
+     *
+     * @return $this
+     */
+    public function insertGetId(array $values): self
+    {
+        $this->insertGetId = false;
+
+        return $this->insert($values);
     }
 
     /**
