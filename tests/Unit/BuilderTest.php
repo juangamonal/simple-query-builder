@@ -120,6 +120,7 @@ final class BuilderTest extends TestCase
 
     /**
      * Prueba el método ->insert()
+     * TODO: probar insertGetId
      *
      * @return void
      */

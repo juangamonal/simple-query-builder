@@ -134,22 +134,27 @@ final class Builder
     /**
      * Ejecuta la consulta SQL según el tipo de dicha consulta
      *
-     * @return array|object
+     * @return mixed
      */
     public function execute()
     {
         // $this->checkTableName();
         $this->checkConnection();
 
-        // TODO: binding para todas las operacione
+        // TODO: binding para todas las operaciones
 
         switch ($this->type) {
             case Query::INSERT:
-                // TODO: retornar resultado de operación?
-                $this->pdo->prepare($this->getInsertSql())
+                $result = $this->pdo->prepare($this->getInsertSql())
                     ->execute($this->insert);
 
-                break;
+                if ($this->insertGetId) {
+                    $this->insertGetId = false;
+
+                    return $this->grammar->getLastInsertId($this->pdo);
+                } else {
+                    return $result;
+                }
             case Query::UPDATE:
                 /*
                 // TODO: retornar resultado de operación?
@@ -181,8 +186,6 @@ final class Builder
 
                 return $data;
         }
-
-        return [];
     }
 
     /**
@@ -352,7 +355,7 @@ final class Builder
      */
     public function insertGetId(array $values): self
     {
-        $this->insertGetId = false;
+        $this->insertGetId = true;
 
         return $this->insert($values);
     }

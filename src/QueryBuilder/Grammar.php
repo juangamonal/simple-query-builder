@@ -2,6 +2,7 @@
 
 namespace QueryBuilder;
 
+use PDO;
 use QueryBuilder\Types\Where;
 
 /**
@@ -10,7 +11,7 @@ use QueryBuilder\Types\Where;
  * @package QueryBuilder
  * @author Juan Gamonal H <juangamonal@gmail.com>
  */
-abstract class Grammar
+class Grammar
 {
     /**
      * Prepara las declaraciones 'SELECT' para ser concatenadas en otra consulta
@@ -200,5 +201,17 @@ abstract class Grammar
     public function limit(int $limit): string
     {
         return ' LIMIT ' . $limit;
+    }
+
+    /**
+     * Obtiene último ID insertado
+     *
+     * @param PDO $pdo Instancia de PDO para consultar
+     *
+     * @return int
+     */
+    public function getLastInsertId(PDO $pdo): int
+    {
+        return $pdo->lastInsertId();
     }
 }
