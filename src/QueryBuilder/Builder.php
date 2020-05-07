@@ -145,8 +145,7 @@ final class Builder
 
         switch ($this->type) {
             case Query::INSERT:
-                $result = $this->pdo->prepare($this->getInsertSql())
-                    ->execute($this->insert);
+                $result = $this->pdo->prepare($this->getInsertSql())->execute($this->insert);
 
                 if ($this->insertGetId) {
                     $this->insertGetId = false;
@@ -176,9 +175,7 @@ final class Builder
             case Query::SELECT:
             default:
                 $data = [];
-                $result = $this->pdo->query(
-                    $this->getSelectSql(count($this->counts) > 0, false)
-                );
+                $result = $this->pdo->query($this->getSelectSql(count($this->counts) > 0, false));
 
                 while ($r = $result->fetch(PDO::FETCH_OBJ)) {
                     array_push($data, $r);
@@ -190,6 +187,7 @@ final class Builder
 
     /**
      * Prepara una consulta para obtener el primer resultado
+     * TODO testear mejor!!
      *
      * @return object
      */
@@ -197,13 +195,9 @@ final class Builder
     {
         $this->type = Query::SELECT;
 
-        // TODO: DRY
-        $result = $this->pdo->query(
-            $this->getSelectSql(count($this->counts) > 0, false)
-        );
+        $result = $this->pdo->query($this->getSelectSql(count($this->counts) > 0, false));
 
-        // TODO: sacar [0]
-        return $result->fetch(PDO::FETCH_OBJ)[0];
+        return $result->fetch(PDO::FETCH_OBJ);
     }
 
     /**
