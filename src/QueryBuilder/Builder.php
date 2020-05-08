@@ -164,14 +164,7 @@ final class Builder
 
                 break;
             case Query::DELETE:
-                /*
-                // TODO: retornar resultado de operación?
-                $this->pdo->prepare($this->getUpdateSql(false))
-                    ->execute($this->update);
-                */
-                $this->pdo->query($this->getDeleteSql(false));
-
-                break;
+                return $this->pdo->query($this->getDeleteSql(false))->execute();
             case Query::SELECT:
             default:
                 $data = [];
