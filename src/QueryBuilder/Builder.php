@@ -155,14 +155,7 @@ final class Builder
                     return $result;
                 }
             case Query::UPDATE:
-                /*
-                // TODO: retornar resultado de operación?
-                $this->pdo->prepare($this->getUpdateSql(false))
-                    ->execute($this->update);
-                */
-                $this->pdo->query($this->getUpdateSql(false));
-
-                break;
+                return $this->pdo->query($this->getUpdateSql(false))->execute();
             case Query::DELETE:
                 return $this->pdo->query($this->getDeleteSql(false))->execute();
             case Query::SELECT:
