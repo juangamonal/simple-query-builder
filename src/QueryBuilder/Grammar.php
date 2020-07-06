@@ -115,7 +115,7 @@ class Grammar
             }
         } else {
             foreach (array_values($insert) as $index => $value) {
-                $query .= is_string($value) ? "'$value'" : $value;
+                $query .= is_null($value) ? 'NULL' : is_string($value) ? "'$value'" : $value;
                 $query .= $index < (count($insert) - 1) ? ', ' : '';
             }
         }
@@ -145,7 +145,7 @@ class Grammar
             if ($bind) {
                 $query .= ":$index";
             } else {
-                $query .= is_string($value) ? "'$value'" : $value;
+                $query .= is_null($value) ? 'NULL' : is_string($value) ? "'$value'" : $value;
             }
         }
 
