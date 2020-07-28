@@ -3,6 +3,7 @@
 namespace QueryBuilder;
 
 use PDO;
+use QueryBuilder\Types\OrderBy;
 use QueryBuilder\Types\Where;
 
 /**
@@ -192,7 +193,7 @@ class Grammar
     }
 
     /**
-     * Prepara las declaración 'LIMIT' para ser concatenada en otra consulta
+     * Prepara la declaración 'LIMIT' para ser concatenada en otra consulta
      *
      * @param int $limit Cantidad de registros a consultar
      *
@@ -200,18 +201,29 @@ class Grammar
      */
     public function limit(int $limit): string
     {
-        return ' LIMIT ' . $limit;
+        return 'LIMIT ' . $limit;
     }
 
     /**
-     * Obtiene último ID insertado
+     * Prepara los comandos 'ORDER BY' para ser concatenados en otra consulta
      *
-     * @param PDO $pdo Instancia de PDO para consultar
+     * @param array $commands Listado de comandos 'ORDER BY'
      *
-     * @return int
+     * @return string
      */
-    public function getLastInsertId(PDO $pdo): int
+    public function orderBy(array $commands): string
     {
-        return $pdo->lastInsertId();
+        $query = 'ORDER BY ';
+
+        foreach ($commands as $column => $type) {
+            // si es el primer elemento, no añade 'AND'
+            if (key($commands) !== $column) {
+                $query .= ', ';
+            }
+
+            $query .= "$column $type";
+        }
+
+        return $query;
     }
 }

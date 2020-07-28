@@ -20,4 +20,5 @@ final class Regex
     public const WHERE = '/^([a-z0-9][a-z0-9_]+[a-z0-9](\.[a-z0-9][a-z0-9_]+[a-z0-9])?)'
         . '( (=|!=|\^=|<>|<|>|<=|>=) )(:?.+)$/im';*/
     public const WHERE = '//im';
+    public const ORDER_BY = '//im';
 }

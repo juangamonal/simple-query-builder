@@ -120,7 +120,6 @@ final class BuilderTest extends TestCase
 
     /**
      * Prueba el método ->insert()
-     * TODO: probar insertGetId
      *
      * @return void
      */
@@ -250,6 +249,44 @@ final class BuilderTest extends TestCase
     }
 
     /**
+     * Prueba el método ->orderBy()
+     *
+     * @return void
+     */
+    public function testOrderBy()
+    {
+        // order by básico
+        $builder = Builder::table('users')
+            ->where('age > 18')
+            ->orderBy('age asc', 'status desc');
+
+        $this->assertCount(2, $builder->getOrderBy());
+
+        // sobreescribe el order by anterior
+        $builder->orderBy('status asc');
+        $this->assertCount(1, $builder->getOrderBy());
+    }
+
+    /**
+     * Prueba el método ->addWhere()
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function testAddOrderBy()
+    {
+        $builder = Builder::table('users');
+        $builder->where('status = 1')
+            ->orderBy('age asc');
+
+        $this->assertCount(1, $builder->getOrderBy());
+
+        $builder->addOrderBy('status desc');
+
+        $this->assertCount(2, $builder->getOrderBy());
+    }
+
+    /**
      * Prueba el método ->validateExistingWhere()
      *
      * @throws Exception
@@ -265,5 +302,18 @@ final class BuilderTest extends TestCase
         // prueba con addOrWhere
         $this->expectException(Exception::class);
         $builder->addOrWhere('another error');
+    }
+
+    /**
+     * Prueba el método ->validateExistingOrderBy()
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function testValidateExistingOrderBy()
+    {
+        $this->expectException(Exception::class);
+        Builder::table('users')
+            ->addOrderBy('order asc');
     }
 }

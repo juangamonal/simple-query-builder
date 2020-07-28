@@ -91,13 +91,6 @@ final class Builder
     private $insert = [];
 
     /**
-     * Solicita ID al insertar
-     *
-     * @var bool
-     */
-    private $insertGetId = false;
-
-    /**
      * Array de datos para la consulta 'UPDATE'
      *
      * @var array
@@ -114,8 +107,13 @@ final class Builder
     // TODO: documentar
     /*
     private $groupBy = [];
-    private $orderBy = [];
     */
+    /**
+     * Listado de commandos 'ORDER BY'
+     *
+     * @var array
+     */
+    private $orderBy = [];
 
     /**
      * Builder constructor.
@@ -145,15 +143,7 @@ final class Builder
 
         switch ($this->type) {
             case Query::INSERT:
-                $result = $this->pdo->prepare($this->getInsertSql())->execute($this->insert);
-
-                if ($this->insertGetId) {
-                    $this->insertGetId = false;
-
-                    return $this->grammar->getLastInsertId($this->pdo);
-                } else {
-                    return $result;
-                }
+                return $this->pdo->prepare($this->getInsertSql())->execute($this->insert);
             case Query::UPDATE:
                 return $this->pdo->query($this->getUpdateSql(false))->execute();
             case Query::DELETE:
@@ -327,20 +317,6 @@ final class Builder
     }
 
     /**
-     * Añade una fila para nueva inserción y solicita ID creado
-     *
-     * @param array $values Llave-valor para columna y valor
-     *
-     * @return $this
-     */
-    public function insertGetId(array $values): self
-    {
-        $this->insertGetId = true;
-
-        return $this->insert($values);
-    }
-
-    /**
      * Añade fila para una modificación
      *
      * @param array $values Llave-valor para columna y valor
@@ -434,8 +410,6 @@ final class Builder
      */
     public function orWhere(string ...$clauses): self
     {
-        // vacía los orWhere existentes
-        $this->wheres = array_filter($this->wheres);
         $this->validateExistingWhere();
         $this->wheres = array_merge($this->wheres, Validator::where($clauses, Where::OR));
 
@@ -463,12 +437,37 @@ final class Builder
     {
         return $this;
     }
+    */
 
-    public function orderBy(): self
+    /**
+     * Asigna comandos 'ORDER BY' a la consulta
+     *
+     * @param string ...$commands Comandos 'ORDER BY' a añadir
+     *
+     * @return $this
+     */
+    public function orderBy(string ...$commands): self
     {
+        $this->orderBy = Validator::orderBy($commands);
+
         return $this;
     }
-    */
+
+    /**
+     * Añade comandos 'ORDER BY' a la consulta
+     *
+     * @param string ...$commands Comandos 'ORDER BY' a añadir
+     *
+     * @throws Exception
+     * @return $this
+     */
+    public function addOrderBy(string ...$commands): self
+    {
+        $this->validateExistingOrderBy();
+        $this->orderBy = array_merge($this->orderBy, Validator::orderBy($commands));
+
+        return $this;
+    }
 
     /**
      * Obtiene el nombre de la tabla
@@ -555,6 +554,16 @@ final class Builder
     }
 
     /**
+     * Obtiene listado de comandos 'ORDER BY
+     *
+     * @return array
+     */
+    public function getOrderBy(): array
+    {
+        return $this->orderBy;
+    }
+
+    /**
      * Obtiene instancia de PDO usaba en Query Builder
      *
      * @return PDO
@@ -636,6 +645,11 @@ final class Builder
             $query .= $this->grammar->limit($this->limit);
         }
 
+        // añade 'ORDER BY'
+        if (count($this->orderBy) > 0) {
+            $query .= ' ' . $this->grammar->orderBy($this->orderBy);
+        }
+
         return $query;
     }
 
@@ -698,6 +712,19 @@ final class Builder
     private function validateExistingWhere(): void
     {
         if (count(array_filter($this->wheres)) === 0) {
+            throw new Exception();
+        }
+    }
+
+    /**
+     * Valida que existan comandos 'ORDER BY' añadidas
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function validateExistingOrderBy(): void
+    {
+        if (count(array_filter($this->orderBy)) === 0) {
             throw new Exception();
         }
     }

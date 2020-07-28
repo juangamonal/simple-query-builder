@@ -3,6 +3,7 @@
 namespace QueryBuilder\Syntax;
 
 use InvalidArgumentException;
+use QueryBuilder\Types\OrderBy;
 use QueryBuilder\Types\Where;
 
 /**
@@ -75,8 +76,6 @@ final class Validator
         }
     }
 
-    // public static function delete(){}
-
     /**
      * Valida un nuevo 'WHERE' añadido
      *
@@ -100,5 +99,30 @@ final class Validator
         }
 
         return $wheres;
+    }
+
+    /**
+     * Valida los comandos 'ORDER BY' añadidos
+     *
+     * @param array $commands Comandos 'ORDER BY' a añadir
+     *
+     * @return array
+     */
+    public static function orderBy(array $commands)
+    {
+        $orderBy = [];
+
+        foreach ($commands as $command) {
+            $command = trim($command);
+
+            if (!preg_match(Regex::ORDER_BY, $command)) {
+                throw new InvalidArgumentException();
+            }
+
+            $pieces = explode(' ', $command);
+            $orderBy[$pieces[0]] = array_key_exists(1, $pieces) ? strtoupper($pieces[1]) : OrderBy::ASC;
+        }
+
+        return $orderBy;
     }
 }

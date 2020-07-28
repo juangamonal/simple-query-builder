@@ -5,6 +5,7 @@ namespace QueryBuilder\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Grammar;
 use QueryBuilder\Grammars\MySqlGrammar;
+use QueryBuilder\Types\OrderBy;
 use QueryBuilder\Types\Where;
 
 /**
@@ -190,5 +191,23 @@ final class GrammarTest extends TestCase
         $data = ['status = 1' => Where::AND, 'deleted = 0' => Where::OR];
         $where = 'WHERE status = :status OR deleted = :deleted';
         $this->assertEquals($where, $this->grammar->where($data));
+    }
+
+    /**
+     * Prueba el método ->orderBy()
+     *
+     * @return void
+     */
+    public function testOrderBy()
+    {
+        // 'ORDER BY' básico
+        $data = ['age' => OrderBy::ASC];
+        $orderBy = 'ORDER BY age ASC';
+        $this->assertEquals($orderBy, $this->grammar->orderBy($data));
+
+        // mútiples 'ORDER BY'
+        $data = ['age' => OrderBy::ASC, 'status' => OrderBy::DESC];
+        $orderBy = 'ORDER BY age ASC, status DESC';
+        $this->assertEquals($orderBy, $this->grammar->orderBy($data));
     }
 }

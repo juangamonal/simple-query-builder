@@ -5,6 +5,7 @@ namespace QueryBuilder\Tests\Unit\Syntax;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Syntax\Validator;
+use QueryBuilder\Types\OrderBy;
 use QueryBuilder\Types\Where;
 
 /**
@@ -81,5 +82,28 @@ final class ValidatorTest extends TestCase
         // orWhere
         $result = ['status = 1' => Where::OR, 'age > 18' => Where::OR];
         $this->assertEquals($result, Validator::where($valid, Where::OR));
+    }
+
+    /**
+     * Prueba la validación de los 'ORDER BY'
+     *
+     * @return void
+     */
+    public function testOrderBy()
+    {
+        // order by correcto
+        $valid = ['age asc', 'status desc'];
+        $result = ['age' => OrderBy::ASC, 'status' => OrderBy::DESC];
+        $this->assertEquals($result, Validator::orderBy($valid));
+
+        // order by con tipo 'ASC' por defecto
+        $valid = ['age'];
+        $result = ['age' => OrderBy::ASC];
+        $this->assertEquals($result, Validator::orderBy($valid));
+
+        // error al tener un comando inválido
+        // TODO: arreglar junto con el Regex de OrderBy
+        // $this->expectException(InvalidArgumentException::class);
+        // Validator::orderBy(['age invalid']
     }
 }
