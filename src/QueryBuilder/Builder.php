@@ -139,15 +139,20 @@ final class Builder
         // $this->checkTableName();
         $this->checkConnection();
 
+        $returnData = null;
+
         // TODO: binding para todas las operaciones
 
         switch ($this->type) {
             case Query::INSERT:
-                return $this->pdo->prepare($this->getInsertSql())->execute($this->insert);
+                $returnData = $this->pdo->prepare($this->getInsertSql())->execute($this->insert);
+                break;
             case Query::UPDATE:
-                return $this->pdo->query($this->getUpdateSql(false))->execute();
+                $returnData = $this->pdo->query($this->getUpdateSql(false))->execute();
+                break;
             case Query::DELETE:
-                return $this->pdo->query($this->getDeleteSql(false))->execute();
+                $returnData = $this->pdo->query($this->getDeleteSql(false))->execute();
+                break;
             case Query::SELECT:
             default:
                 $data = [];
@@ -157,8 +162,21 @@ final class Builder
                     array_push($data, $r);
                 }
 
-                return $data;
+                $returnData = $data;
+                break;
         }
+
+        // limpia los residuos de la última consulta
+        $this->selects = [];
+        $this->distinct = false;
+        // $this->limit;
+        $this->counts = [];
+        $this->insert = [];
+        $this->update = [];
+        $this->wheres = [];
+        $this->orderBy = [];
+
+        return $returnData;
     }
 
     /**
