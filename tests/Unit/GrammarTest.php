@@ -5,6 +5,7 @@ namespace QueryBuilder\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Grammar;
 use QueryBuilder\Grammars\MySqlGrammar;
+use QueryBuilder\Syntax\Join;
 use QueryBuilder\Types\OrderBy;
 use QueryBuilder\Types\Where;
 
@@ -18,6 +19,7 @@ final class GrammarTest extends TestCase
 {
     /**
      * Instancia de grammar para pruebas
+     *
      * @var Grammar
      */
     private $grammar;
@@ -53,6 +55,11 @@ final class GrammarTest extends TestCase
         $this->assertEquals($select, $this->grammar->select('users', $statements, true));
     }
 
+    /**
+     * Prueba el método ->count()
+     *
+     * @return void
+     */
     public function testCount()
     {
         // prepara un 'COUNT' sencillo
@@ -140,6 +147,27 @@ final class GrammarTest extends TestCase
         $this->assertEquals($sql, $this->grammar->update('users', $data));
 
         // TODO: probar con demás tipos de datos
+    }
+
+    /**
+     * Prueba el método ->join()
+     *
+     * @return void
+     */
+    public function testJoin()
+    {
+        // inner join
+        $data = [new Join('users', 'users.id = posts.owner_id', Join::INNER)];
+        $join = 'INNER JOIN users ON users.id = posts.owner_id';
+        $this->assertEquals($join, $this->grammar->join($data, false));
+
+        // TODO: test demás tipos de join
+    }
+
+    // TODO
+    public function testJoinBinding()
+    {
+
     }
 
     /**

@@ -156,6 +156,16 @@ final class BuilderTest extends TestCase
     }
 
     /**
+     * Prueba los métodos ->join(), ->leftJoin(), ->rightJoin() y ->outerJoin()
+     */
+    public function testJoin()
+    {
+        // inner join
+        $builder = $this->getInstance()->join('users', 'users.id = posts.owner_id');
+        $this->assertCount(1, $builder->getJoins());
+    }
+
+    /**
      * Prueba el método ->where()
      *
      * @return void

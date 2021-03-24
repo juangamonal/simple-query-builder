@@ -47,8 +47,6 @@ class Grammar
         // añade 'from'
         $query .= ' FROM ' . $table;
 
-        // TODO añade joins
-
         return $query;
     }
 
@@ -149,6 +147,30 @@ class Grammar
                 $query .= ":$index";
             } else {
                 $query .= is_null($value) ? 'NULL' : (is_string($value) ? "'$value'" : $value);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Prepara las cláusulas 'JOIN' para ser concatenada en otra consulta
+     *
+     * @param array $joins Listado de uniones a realizar
+     * @param bool $bind Utilizará binding para la query
+     *
+     * @return string
+     */
+    public function join(array $joins, bool $bind = true): string
+    {
+        $query = '';
+        $total = count($joins);
+
+        foreach ($joins as $i => $join) {
+            $query .= "{$join->getType()} JOIN {$join->getTable()} ON {$join->getCondition()}";
+
+            if (($i + 1) < $total) {
+                $query .= " ";
             }
         }
 

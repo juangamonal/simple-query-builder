@@ -6,6 +6,7 @@ use Exception;
 use PDO;
 use QueryBuilder\Exceptions\UndefinedTableNameException;
 use QueryBuilder\Grammars\GrammarHandler;
+use QueryBuilder\Syntax\Join;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Query;
 use QueryBuilder\Types\Where;
@@ -72,9 +73,7 @@ class Builder extends ConnectionHandler
      *
      * @var array
      */
-    /*
     private $joins = [];
-    */
 
     /**
      * Array de datos para la consulta 'INSERT'
@@ -388,33 +387,87 @@ class Builder extends ConnectionHandler
     }
 
     /**
-     * Añade un join a la consulta 'SELECT'
+     * Añade un 'INNER JOIN' a la consulta 'SELECT'
      *
-     * @param string $table Nombre de la tabla para hacer 'join'
-     * @param string $condition Condición del 'join'
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
      *
      * @return $this
      */
-    /*
     public function join(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::INNER);
+    }
+
+    /**
+     * Añade un 'INNER JOIN' a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     *
+     * @return $this
+     */
+    public function innerJoin(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::INNER);
+    }
+
+    /**
+     * Añade un 'LEFT JOIN' a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     *
+     * @return $this
+     */
+    public function leftJoin(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::LEFT);
+    }
+
+    /**
+     * Añade un 'RIGHT JOIN' a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     *
+     * @return $this
+     */
+    public function rightJoin(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::RIGHT);
+    }
+
+    /**
+     * Añade un 'OUTER JOIN' a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     *
+     * @return $this
+     */
+    public function outerJoin(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::OUTER);
+    }
+
+    /**
+     * Define como añadir un 'JOIN' al Builder
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     * @param string $type Tipo de join (definidos en su respectiva clase)
+     *
+     * @return $this
+     */
+    private function baseJoin(string $table, string $condition, string $type): self
     {
         $this->type = Query::SELECT;
 
-        array_push($this->joins, Join::create($table, $condition));
+        array_push($this->joins, new Join($table, $condition, $table));
 
         return $this;
     }
-
-    public function leftJoin(): self
-    {
-        return $this;
-    }
-
-    public function rightJoin(): self
-    {
-        return $this;
-    }
-    */
 
     /**
      * Asigna cláusulas para realizar 'WHERE'
@@ -588,6 +641,16 @@ class Builder extends ConnectionHandler
     }
 
     /**
+     * Obtiene listado de clásusulas 'JOIN'
+     *
+     * @return array
+     */
+    public function getJoins(): array
+    {
+        return $this->joins;
+    }
+
+    /**
      * Obtiene listado de cláusulas 'WHERE'
      *
      * @return array
@@ -609,7 +672,7 @@ class Builder extends ConnectionHandler
 
     /**
      * Crea una nueva instancia de Query Builder
-     * TODO: no está totalmente estable, se usa solo en pruebas por ahora
+     * TODO: no está totalmente estable, se usa solo en docs por ahora
      *
      * @param string $table Nombre de la tabla
      *
@@ -657,6 +720,11 @@ class Builder extends ConnectionHandler
             $this->selects,
             $this->distinct
         );
+
+        // añade 'JOIN'
+        if (count($this->joins) > 0) {
+            $query .= ' ' . $this->grammar->join($this->joins, $bind);
+        }
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
