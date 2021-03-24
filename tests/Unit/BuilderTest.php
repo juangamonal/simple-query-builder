@@ -6,6 +6,7 @@ use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Builder;
+use Tests\Utils;
 
 /**
  * Class BuilderTest
@@ -37,12 +38,10 @@ final class BuilderTest extends TestCase
     public function testSelect()
     {
         // añade un select vacío
-        $builder = Builder::table('table')
-            ->select();
+        $builder = $this->getInstance()->select();
         $this->assertCount(1, $builder->getSelects());
 
-        // sobreescribe las declaraciones anteriores
-        $builder = Builder::table('users')
+        $builder = $builder->setTable('users')
             ->select('column');
         $this->assertCount(1, $builder->getSelects());
 
@@ -62,7 +61,7 @@ final class BuilderTest extends TestCase
      */
     public function testAddSelect()
     {
-        $builder = Builder::table('table');
+        $builder = $this->getInstance();
         $builder->select('one', 'two');
 
         $this->assertCount(2, $builder->getSelects());
@@ -83,13 +82,11 @@ final class BuilderTest extends TestCase
     public function testCount()
     {
         // añade un count vacío
-        $builder = Builder::table('table')
-            ->count();
+        $builder = $this->getInstance()->count();
         $this->assertCount(1, $builder->getCounts());
 
         // sobreescribe las declaraciones anteriores
-        $builder = Builder::table('users')
-            ->count('column');
+        $builder = $this->getInstance()->count('column');
         $this->assertCount(1, $builder->getCounts());
 
         // añade múltiples count
@@ -108,7 +105,7 @@ final class BuilderTest extends TestCase
      */
     public function testAddCount()
     {
-        $builder = Builder::table('table');
+        $builder = $this->getInstance();
         $builder->count('one', 'two');
 
         $this->assertCount(2, $builder->getCounts());
@@ -126,10 +123,9 @@ final class BuilderTest extends TestCase
     public function testInsert()
     {
         // insert básico
-        $builder = Builder::table('tablename')
-            ->insert(
-                ['column_one' => 'value_one']
-            );
+        $builder = $this->getInstance()->insert(
+            ['column_one' => 'value_one']
+        );
 
         $this->assertCount(1, $builder->getInsert());
 
@@ -147,10 +143,9 @@ final class BuilderTest extends TestCase
     public function testUpdate()
     {
         // update básico
-        $builder = Builder::table('tablename')
-            ->update(
-                ['column_one' => 'value_one']
-            );
+        $builder = $this->getInstance()->update(
+            ['column_one' => 'value_one']
+        );
 
         $this->assertCount(1, $builder->getUpdate());
 
@@ -168,11 +163,7 @@ final class BuilderTest extends TestCase
     public function testWhere()
     {
         // where básico
-        $builder = Builder::table('users')
-            ->where(
-                'status = 1',
-                'age > 18'
-            );
+        $builder = $this->getInstance()->where('status = 1', 'age > 18');
 
         $this->assertCount(2, $builder->getWheres());
 
@@ -188,7 +179,7 @@ final class BuilderTest extends TestCase
      */
     public function testAddWhere()
     {
-        $builder = Builder::table('users');
+        $builder = $this->getInstance();
         $builder->where(
             'status = 1'
         );
@@ -213,8 +204,7 @@ final class BuilderTest extends TestCase
     {
         // error, sin wheres
         $this->expectException(Exception::class);
-        $builder = Builder::table('users')
-            ->orWhere('error');
+        $builder = $this->getInstance()->orWhere('error');
 
         // orWhere básico
         $builder->where('status = 1')
@@ -236,8 +226,7 @@ final class BuilderTest extends TestCase
     {
         // error, sin wheres
         $this->expectException(Exception::class);
-        $builder = Builder::table('users')
-            ->addOrWhere('error');
+        $builder = $this->getInstance()->addOrWhere('error');
 
         // addOrWhere básico
         $builder->where('status = 1')
@@ -256,7 +245,7 @@ final class BuilderTest extends TestCase
     public function testOrderBy()
     {
         // order by básico
-        $builder = Builder::table('users')
+        $builder = $this->getInstance()
             ->where('age > 18')
             ->orderBy('age asc', 'status desc');
 
@@ -275,7 +264,7 @@ final class BuilderTest extends TestCase
      */
     public function testAddOrderBy()
     {
-        $builder = Builder::table('users');
+        $builder = $this->getInstance();
         $builder->where('status = 1')
             ->orderBy('age asc');
 
@@ -296,8 +285,7 @@ final class BuilderTest extends TestCase
     {
         // prueba con orWhere
         $this->expectException(Exception::class);
-        $builder = Builder::table('users')
-            ->orWhere('error');
+        $builder = $this->getInstance()->orWhere('error');
 
         // prueba con addOrWhere
         $this->expectException(Exception::class);
@@ -313,7 +301,16 @@ final class BuilderTest extends TestCase
     public function testValidateExistingOrderBy()
     {
         $this->expectException(Exception::class);
-        Builder::table('users')
-            ->addOrderBy('order asc');
+        $this->getInstance()->addOrderBy('order asc');
+    }
+
+    /**
+     * Obtiene una instancia de Query Builder ideal para pruebas
+     *
+     * @return Builder
+     */
+    private function getInstance(): Builder
+    {
+        return new Builder(Utils::getTestingConnection());
     }
 }

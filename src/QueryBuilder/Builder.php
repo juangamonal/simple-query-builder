@@ -13,24 +13,17 @@ use QueryBuilder\Types\Where;
 /**
  * Class Builder
  *
- * @package QueryBuilder
  * @author Juan Gamonal H <juangamonal@gmail.com>
+ * @package QueryBuilder
  */
-final class Builder
+class Builder extends ConnectionHandler
 {
     /**
-     * Tipo de Query según las constantes de arriba
+     * Tipo de Query según las constantes de la clase Types\Query
      *
      * @var int
      */
     private $type = Query::SELECT;
-
-    /**
-     * Instancia de conexión a la base de datos
-     *
-     * @var PDO
-     */
-    private $pdo;
 
     /**
      * Define la gramática que debe usar para crear las consultas
@@ -109,7 +102,7 @@ final class Builder
     private $groupBy = [];
     */
     /**
-     * Listado de commandos 'ORDER BY'
+     * Listado de comandos 'ORDER BY'
      *
      * @var array
      */
@@ -118,12 +111,14 @@ final class Builder
     /**
      * Builder constructor.
      *
-     * @param PDO|null $pdo Instancia de conexión a la BDD
+     * @param PDO $pdo Instancia de conexión a la BDD
      * @param Grammar|null $grammar Instancia de gramática de motor de BDD
      */
-    public function __construct(PDO $pdo = null, Grammar $grammar = null)
+    public function __construct(PDO $pdo, Grammar $grammar = null)
     {
-        $this->pdo = $pdo;
+        parent::__construct($pdo);
+
+        // TODO: cambiar por algo más robusto
         $this->grammar = $grammar ?: GrammarHandler::create(
             getenv('QB_DEFAULT_DRIVER') ?: 'sqlite'
         );
@@ -132,12 +127,13 @@ final class Builder
     /**
      * Ejecuta la consulta SQL según el tipo de dicha consulta
      *
-     * @return mixed
+     * @param string|null $fetchMode Modo de obtención de datos según PDO
+     *
+     * @return object|array|null
      */
-    public function execute()
+    public function execute(string $fetchMode = null)
     {
         // $this->checkTableName();
-        $this->checkConnection();
 
         $returnData = null;
 
@@ -145,53 +141,55 @@ final class Builder
 
         switch ($this->type) {
             case Query::INSERT:
-                $returnData = $this->pdo->prepare($this->getInsertSql())->execute($this->insert);
+                $returnData = $this->exec($this->getInsertSql(), $this->insert);
                 break;
             case Query::UPDATE:
-                $returnData = $this->pdo->query($this->getUpdateSql(false))->execute();
+                $returnData = $this->exec($this->getUpdateSql(false), $this->update);
                 break;
             case Query::DELETE:
-                $returnData = $this->pdo->query($this->getDeleteSql(false))->execute();
+                $returnData = $this->exec($this->getDeleteSql(false));
                 break;
             case Query::SELECT:
             default:
-                $data = [];
-                $result = $this->pdo->query($this->getSelectSql(count($this->counts) > 0, false));
-
-                while ($r = $result->fetch(PDO::FETCH_OBJ)) {
-                    array_push($data, $r);
-                }
-
-                $returnData = $data;
+                $returnData = $this->query($this->getSelectSql(count($this->counts) > 0, false), $fetchMode);
                 break;
         }
 
-        // limpia los residuos de la última consulta
-        $this->selects = [];
-        $this->distinct = false;
-        // $this->limit;
-        $this->counts = [];
-        $this->insert = [];
-        $this->update = [];
-        $this->wheres = [];
-        $this->orderBy = [];
+        $this->cleanBuilder();
 
         return $returnData;
     }
 
     /**
      * Prepara una consulta para obtener el primer resultado
+     * TODO: debe limpiar
      * TODO testear mejor!!
      *
-     * @return object
+     * @param string|null $fetchMode Modo de obtención de datos según PDO
+     *
+     * @return object|array|null
      */
-    public function first()
+    public function first(string $fetchMode = null)
     {
-        $this->type = Query::SELECT;
+        $data = $this->query($this->getSelectSql(count($this->counts) > 0, false), $fetchMode);
+        $this->cleanBuilder();
 
-        $result = $this->pdo->query($this->getSelectSql(count($this->counts) > 0, false));
+        return $data;
+    }
 
-        return $result->fetch(PDO::FETCH_OBJ);
+    /**
+     * Funciona como alias para 'execute', básicamente devuelve resultados en una consulta de tipo SELECT
+     *
+     * @param string|null $fetchMode Modo de obtención de datos según PDO
+     *
+     * @return array
+     */
+    public function get(string $fetchMode = null): array
+    {
+        $data = $this->query($this->getSelectSql(count($this->counts) > 0, false), $fetchMode);
+        $this->cleanBuilder();
+
+        return $data;
     }
 
     /**
@@ -199,12 +197,11 @@ final class Builder
      *
      * @param bool $bind Utilizará binding para la query?
      *
-     * @throws UndefinedTableNameException
      * @return string
      */
     public function toSql(bool $bind = false): string
     {
-        $this->checkTableName();
+        // $this->checkTableName();
 
         switch ($this->type) {
             case Query::INSERT:
@@ -212,10 +209,10 @@ final class Builder
             case Query::UPDATE:
                 return $this->getUpdateSql($bind);
             case Query::DELETE:
-                return $this->getDeleteSql();
+                return $this->getDeleteSql($bind);
             case Query::SELECT:
             default:
-                return $this->getSelectSql(count($this->counts) > 0);
+                return $this->getSelectSql(count($this->counts) > 0, $bind);
         }
     }
 
@@ -236,6 +233,21 @@ final class Builder
 
         $this->type = Query::SELECT;
         $this->selects = Validator::select($statements);
+
+        return $this;
+    }
+
+    /**
+     * Asigna el nombre de la tabla base para el builder, funciona para hacer una query más semántica en una consulta
+     * SELECT y DELETE.
+     *
+     * @param string $table Nombre de la tabla
+     *
+     * @return $this
+     */
+    public function from(string $table): self
+    {
+        $this->table = $table;
 
         return $this;
     }
@@ -332,6 +344,20 @@ final class Builder
         $this->insert = Validator::insert($values);
 
         return $this;
+    }
+
+    /**
+     * Funciona como alias para ejecutar una consulta de tipo insert directamente en una tabla
+     *
+     * @param string $table
+     *
+     * @return bool
+     */
+    public function into(string $table): bool
+    {
+        $this->table = $table;
+
+        return $this->exec($this->getInsertSql(), $this->insert);
     }
 
     /**
@@ -582,17 +608,8 @@ final class Builder
     }
 
     /**
-     * Obtiene instancia de PDO usaba en Query Builder
-     *
-     * @return PDO
-     */
-    public function getPDO(): PDO
-    {
-        return $this->pdo;
-    }
-
-    /**
      * Crea una nueva instancia de Query Builder
+     * TODO: no está totalmente estable, se usa solo en pruebas por ahora
      *
      * @param string $table Nombre de la tabla
      *
@@ -604,18 +621,6 @@ final class Builder
         $builder->setTable($table);
 
         return $builder;
-    }
-
-    /**
-     * Verifica si tiene conexión PDO
-     *
-     * @return void
-     */
-    private function checkConnection(): void
-    {
-        if (!$this->pdo) {
-            $this->pdo = new DefaultConnection();
-        }
     }
 
     /**
@@ -719,6 +724,22 @@ final class Builder
         }
 
         return $query;
+    }
+
+    /**
+     * Limpia los campos del query builder para volver a utilizar la instancia en otra consulta
+     */
+    private function cleanBuilder(): void
+    {
+        $this->type = Query::SELECT;
+        $this->selects = [];
+        $this->distinct = false;
+        // $this->limit;
+        $this->counts = [];
+        $this->insert = [];
+        $this->update = [];
+        $this->wheres = [];
+        $this->orderBy = [];
     }
 
     /**

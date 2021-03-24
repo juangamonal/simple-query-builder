@@ -18,18 +18,41 @@ composer require juangamonal/sqb
 ```php
 use QueryBuilder\Builder;
 
-$builder = Builder::table('users');
+$pdo = new PDO('...');
+$builder = new Builder($pdo);
 ```
 
 La instancia de `QueryBuilder` te permite encadenar métodos para realizar las consultas, por ejemplo:
 
 ```php
-$builder = Builder::table('users')
-    ->select('name as first_name', 'last_name', 'email')
-    ->where('status = 1', 'age > 18');
+$builder->select('name as first_name', 'last_name', 'email')
+    ->where('status = 1', 'age > 18')
+    ->get();
 
 # SELECT name AS first_name, last_name, email FROM users WHERE status = 1 AND age > 18
 echo $builder->toSql();
+
+// obteniendo resultados
+$users = $builder->select('id')->from('users')->get();
+
+// insertando datos
+$builder->insert([
+    'id' => 1,
+    'name' => 'Foo'
+])->into('users');
+
+// modificando datos
+$id = 1;
+$builder->update([
+    'name' => 'Foo',
+    'email' => 'foo@bar.com'
+])->where("id = {$id}")->execute();
+
+// eliminado datos
+$builder->delete()
+    ->from('users')
+    ->where("name like %Foo")
+    ->execute();
 ```
 
 ## Guías

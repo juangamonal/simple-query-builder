@@ -47,6 +47,8 @@ class Grammar
         // añade 'from'
         $query .= ' FROM ' . $table;
 
+        // TODO añade joins
+
         return $query;
     }
 
