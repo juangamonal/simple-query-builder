@@ -57,7 +57,6 @@ class ConnectionHandler
      */
     protected function query(string $query, string $fetchMode = null, bool $unique = false)
     {
-        var_dump($query);
         $result = $this->pdo->query($query);
 
         if ($unique === false) {
@@ -92,5 +91,27 @@ class ConnectionHandler
         return $this->pdo;
     }
 
-    // TODO: transactions...
+    /**
+     * Solicita a PDO iniciar una transacción
+     */
+    public function beginTransaction(): void
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    /**
+     * Solicita a PDO hacer commit de la transacción
+     */
+    public function commit(): void
+    {
+        $this->pdo->commit();
+    }
+
+    /**
+     * Solicita a PDO realizar un rollback de la transacción
+     */
+    public function rollback(): void
+    {
+        $this->pdo->rollBack();
+    }
 }

@@ -835,4 +835,25 @@ class Builder extends ConnectionHandler
             throw new Exception();
         }
     }
+
+    /**
+     * Ejecuta una operación dentro de una transacción
+     *
+     * @param $transaction
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function transaction($transaction): void
+    {
+        try {
+            $this->beginTransaction();
+            $transaction($this);
+            $this->commit();
+        } catch (\PDOException $e) {
+            $this->rollback();
+            // TODO: make BuilderException o algo así
+            throw new Exception($e->getMessage());
+        }
+    }
 }
