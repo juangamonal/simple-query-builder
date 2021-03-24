@@ -165,10 +165,12 @@ final class GrammarTest extends TestCase
     }
 
     // TODO
+    /*
     public function testJoinBinding()
     {
 
     }
+    */
 
     /**
      * Prueba el método ->where()
