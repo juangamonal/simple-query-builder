@@ -464,7 +464,7 @@ class Builder extends ConnectionHandler
     {
         $this->type = Query::SELECT;
 
-        array_push($this->joins, new Join($table, $condition, $table));
+        array_push($this->joins, new Join($table, $condition, $type));
 
         return $this;
     }

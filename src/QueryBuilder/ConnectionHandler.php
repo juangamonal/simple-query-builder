@@ -50,16 +50,21 @@ class ConnectionHandler
      * TODO fetch mode
      *
      * @param string $query La consulta a ejecutar
-     * @param string $fetchMode Modo de obtención de datos según PDO
+     * @param string|null $fetchMode Modo de obtención de datos según PDO
      * @param bool $unique Este flag si indica si debe obtener los datos como una lista o un objeto único
      *
-     * @return array|object
+     * @return array|object|null
      */
-    protected function query(string $query, string $fetchMode, bool $unique = false)
+    protected function query(string $query, string $fetchMode = null, bool $unique = false)
     {
+        var_dump($query);
         $result = $this->pdo->query($query);
 
         if ($unique === false) {
+            if (!$result) {
+                return [];
+            }
+
             $data = [];
 
             while ($r = $result->fetch(PDO::FETCH_OBJ)) {
@@ -68,6 +73,10 @@ class ConnectionHandler
 
             return $data;
         } else {
+            if (!$result) {
+                return null;
+            }
+
             return $result->fetch(PDO::FETCH_OBJ);
         }
     }
