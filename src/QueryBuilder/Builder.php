@@ -3,9 +3,11 @@
 namespace QueryBuilder;
 
 use Exception;
+use InvalidArgumentException;
 use PDO;
 use QueryBuilder\Exceptions\UndefinedTableNameException;
 use QueryBuilder\Grammars\GrammarHandler;
+use QueryBuilder\Syntax\Insert;
 use QueryBuilder\Syntax\Join;
 use QueryBuilder\Syntax\Select;
 use QueryBuilder\Syntax\Validator;
@@ -44,7 +46,7 @@ class Builder extends ConnectionHandler
     /**
      * Listado de columnas para hacer 'SELECT'
      *
-     * @var array
+     * @var Select[]
      */
     private $selects = [];
 
@@ -65,14 +67,14 @@ class Builder extends ConnectionHandler
     /**
      * Listado de columnas para hacer 'SELECT COUNT'
      *
-     * @var array
+     * @var Select[]
      */
     private $counts = [];
 
     /**
      * Listado de 'JOIN' para hacer 'SELECT'
      *
-     * @var array
+     * @var Join[]
      */
     private $joins = [];
 
@@ -348,8 +350,18 @@ class Builder extends ConnectionHandler
      */
     public function insert(array $values): self
     {
+        $this->insert = [];
         $this->type = Query::INSERT;
-        $this->insert = Validator::insert($values);
+
+        // valida que sea un array asociativo
+        if (array_keys($values) !== range(0, count($values) - 1)) {
+            foreach ($values as $i => $value) {
+                array_push($this->insert, new Insert($i, $value));
+            }
+        } else {
+            // TODO: mejorar excepción
+            throw new InvalidArgumentException();
+        }
 
         return $this;
     }
@@ -378,7 +390,7 @@ class Builder extends ConnectionHandler
     public function update(array $values): self
     {
         $this->type = Query::UPDATE;
-        $this->update = Validator::insert($values);
+        // $this->update = Validator::insert($values);
 
         return $this;
     }

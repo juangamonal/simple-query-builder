@@ -5,6 +5,7 @@ namespace QueryBuilder\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\Grammar;
 use QueryBuilder\Grammars\MySqlGrammar;
+use QueryBuilder\Syntax\Insert;
 use QueryBuilder\Syntax\Join;
 use QueryBuilder\Syntax\Select;
 use QueryBuilder\Types\OrderBy;
@@ -63,12 +64,12 @@ final class GrammarTest extends TestCase
     public function testCount()
     {
         // prepara un 'COUNT' sencillo
-        $statements = ['email', 'name as full_name'];
+        $statements = [new Select('email'), new Select('name as full_name')];
         $select = 'SELECT COUNT(email), COUNT(name) AS full_name FROM users';
         $this->assertEquals($select, $this->grammar->count('users', $statements));
 
         // prepara un 'COUNT' con 'DISTINCT'
-        $statements = ['email as user_email', 'name', 'status'];
+        $statements = [new Select('email as user_email'), new Select('name'), new Select('status')];
         $select = 'SELECT DISTINCT COUNT(email) AS user_email, COUNT(name), COUNT(status) FROM users';
         $this->assertEquals($select, $this->grammar->count('users', $statements, true));
     }
@@ -83,8 +84,8 @@ final class GrammarTest extends TestCase
         // insert básico
         $sql = "INSERT INTO users (first_name, status) VALUES ('foo bar', 1)";
         $data = [
-            'first_name' => 'foo bar',
-            'status' => 1
+            new Insert('first_name', 'foo bar'),
+            new Insert('status', 1),
         ];
 
         $this->assertEquals($sql, $this->grammar->insert('users', $data, false));
@@ -102,8 +103,8 @@ final class GrammarTest extends TestCase
         // insert básico
         $sql = "INSERT INTO users (first_name, status) VALUES (:first_name, :status)";
         $data = [
-            'first_name' => 'foo bar',
-            'status' => 1
+            new Insert('first_name', 'foo bar'),
+            new Insert('status', 1),
         ];
 
         $this->assertEquals($sql, $this->grammar->insert('users', $data));

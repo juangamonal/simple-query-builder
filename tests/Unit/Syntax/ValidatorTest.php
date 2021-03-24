@@ -17,26 +17,6 @@ use QueryBuilder\Types\Where;
 final class ValidatorTest extends TestCase
 {
     /**
-     * Prueba la validación de los 'INSERT'
-     *
-     * @return void
-     */
-    public function testInsert()
-    {
-        // insert correcto
-        $valid = ['name' => 'Juan Gamonal', 'email' => 'juangamonalh@gmail.com'];
-        $this->assertEquals($valid, Validator::insert($valid));
-
-        // error al no ser array asociativo
-        $this->expectException(InvalidArgumentException::class);
-        Validator::insert(['value_one', 'value_two']);
-
-        // error al tener nombre de columna inválida
-        $this->expectException(InvalidArgumentException::class);
-        Validator::insert(['_invalid' => 'value_one']);
-    }
-
-    /**
      * Prueba la validación de los 'WHERE'
      *
      * @return void

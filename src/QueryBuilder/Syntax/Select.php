@@ -5,7 +5,7 @@ namespace QueryBuilder\Syntax;
 use InvalidArgumentException;
 
 /**
- * Representa la sentencia 'SELECT' en el lenguaje SQL
+ * Representa la sentencia SELECT en el lenguaje SQL
  *
  * @author Juan Gamonal H <jgamonal@ucsc.cl>
  * @package QueryBuilder\Syntax

@@ -3,7 +3,7 @@
 namespace QueryBuilder\Syntax;
 
 /**
- * Representa la cláusula 'JOIN' del lenguaje SQL.
+ * Representa la cláusula JOIN del lenguaje SQL.
  *
  * @author Juan Gamonal H <juangamonalh@gmail.com>
  * @package QueryBuilder\Syntax

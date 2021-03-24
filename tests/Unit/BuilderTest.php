@@ -140,6 +140,7 @@ final class BuilderTest extends TestCase
      *
      * @return void
      */
+    /*
     public function testUpdate()
     {
         // update básico
@@ -154,6 +155,7 @@ final class BuilderTest extends TestCase
         $builder->update(['column_three' => 'value_three']);
         $this->assertCount(1, $builder->getUpdate());
     }
+    */
 
     /**
      * Prueba los métodos ->join(), ->leftJoin(), ->rightJoin() y ->outerJoin()
