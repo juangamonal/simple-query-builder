@@ -36,13 +36,10 @@ class Grammar
             $query .= ' DISTINCT';
         }
 
-        // parsea 'as' a mayúsuculas
-        foreach ($statements as $i => $statement) {
-            $statements[$i] = str_replace(' as ', ' AS ', $statement);
-        }
-
         // añade columnas
-        $query .= ' ' . implode(', ', $statements);
+        $query .= ' ' . implode(', ', array_map(function ($s) {
+            return $s->getStatement();
+        }, $statements));
 
         // añade 'from'
         $query .= ' FROM ' . $table;
@@ -72,13 +69,10 @@ class Grammar
             $query .= ' DISTINCT';
         }
 
-        // parsea 'as' a mayúsuculas
-        foreach ($statements as $i => $statement) {
-            $statements[$i] = str_replace(' as ', ' AS ', $statement);
-        }
-
         // añade columnas
         foreach (array_values($statements) as $index => $statement) {
+            $statement = $statement->getStatement();
+
             if (strpos($statement, ' AS ')) {
                 $pieces = explode(' ', $statement);
                 $query .= " COUNT($pieces[0]) AS $pieces[2]";
@@ -106,18 +100,24 @@ class Grammar
      */
     public function insert(string $table, array $insert, bool $bind = true): string
     {
+        $data = [];
+
+        foreach ($insert as $i) {
+            $data[$i->getColumn()] = $i->getValue();
+        }
+
         $query = 'INSERT INTO ' . $table .
-            ' (' . implode(', ', array_keys($insert)) . ') VALUES (';
+            ' (' . implode(', ', array_keys($data)) . ') VALUES (';
 
         if ($bind) {
-            foreach (array_keys($insert) as $index => $key) {
+            foreach (array_keys($data) as $index => $key) {
                 $query .= ":$key";
-                $query .= $index < (count($insert) - 1) ? ', ' : '';
+                $query .= $index < (count($data) - 1) ? ', ' : '';
             }
         } else {
-            foreach (array_values($insert) as $index => $value) {
+            foreach (array_values($data) as $index => $value) {
                 $query .= is_null($value) ? 'NULL' : (is_string($value) ? "'$value'" : $value);
-                $query .= $index < (count($insert) - 1) ? ', ' : '';
+                $query .= $index < (count($data) - 1) ? ', ' : '';
             }
         }
 
@@ -147,6 +147,31 @@ class Grammar
                 $query .= ":$index";
             } else {
                 $query .= is_null($value) ? 'NULL' : (is_string($value) ? "'$value'" : $value);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Prepara las cláusulas 'JOIN' para ser concatenada en otra consulta
+     * TODO: bind
+     *
+     * @param array $joins Listado de uniones a realizar
+     * @param bool $bind Utilizará binding para la query
+     *
+     * @return string
+     */
+    public function join(array $joins, bool $bind = true): string
+    {
+        $query = '';
+        $total = count($joins);
+
+        foreach ($joins as $i => $join) {
+            $query .= "{$join->getType()} JOIN {$join->getTable()} ON {$join->getCondition()}";
+
+            if (($i + 1) < $total) {
+                $query .= " ";
             }
         }
 

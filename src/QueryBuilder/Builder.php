@@ -3,9 +3,13 @@
 namespace QueryBuilder;
 
 use Exception;
+use InvalidArgumentException;
 use PDO;
 use QueryBuilder\Exceptions\UndefinedTableNameException;
 use QueryBuilder\Grammars\GrammarHandler;
+use QueryBuilder\Syntax\Insert;
+use QueryBuilder\Syntax\Join;
+use QueryBuilder\Syntax\Select;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Query;
 use QueryBuilder\Types\Where;
@@ -13,24 +17,17 @@ use QueryBuilder\Types\Where;
 /**
  * Class Builder
  *
- * @package QueryBuilder
  * @author Juan Gamonal H <juangamonal@gmail.com>
+ * @package QueryBuilder
  */
-final class Builder
+class Builder extends ConnectionHandler
 {
     /**
-     * Tipo de Query según las constantes de arriba
+     * Tipo de Query según las constantes de la clase Types\Query
      *
      * @var int
      */
     private $type = Query::SELECT;
-
-    /**
-     * Instancia de conexión a la base de datos
-     *
-     * @var PDO
-     */
-    private $pdo;
 
     /**
      * Define la gramática que debe usar para crear las consultas
@@ -49,7 +46,7 @@ final class Builder
     /**
      * Listado de columnas para hacer 'SELECT'
      *
-     * @var array
+     * @var Select[]
      */
     private $selects = [];
 
@@ -70,18 +67,16 @@ final class Builder
     /**
      * Listado de columnas para hacer 'SELECT COUNT'
      *
-     * @var array
+     * @var Select[]
      */
     private $counts = [];
 
     /**
      * Listado de 'JOIN' para hacer 'SELECT'
      *
-     * @var array
+     * @var Join[]
      */
-    /*
     private $joins = [];
-    */
 
     /**
      * Array de datos para la consulta 'INSERT'
@@ -109,7 +104,7 @@ final class Builder
     private $groupBy = [];
     */
     /**
-     * Listado de commandos 'ORDER BY'
+     * Listado de comandos 'ORDER BY'
      *
      * @var array
      */
@@ -118,12 +113,14 @@ final class Builder
     /**
      * Builder constructor.
      *
-     * @param PDO|null $pdo Instancia de conexión a la BDD
+     * @param PDO $pdo Instancia de conexión a la BDD
      * @param Grammar|null $grammar Instancia de gramática de motor de BDD
      */
-    public function __construct(PDO $pdo = null, Grammar $grammar = null)
+    public function __construct(PDO $pdo, Grammar $grammar = null)
     {
-        $this->pdo = $pdo;
+        parent::__construct($pdo);
+
+        // TODO: cambiar por algo más robusto
         $this->grammar = $grammar ?: GrammarHandler::create(
             getenv('QB_DEFAULT_DRIVER') ?: 'sqlite'
         );
@@ -132,12 +129,13 @@ final class Builder
     /**
      * Ejecuta la consulta SQL según el tipo de dicha consulta
      *
-     * @return mixed
+     * @param string|null $fetchMode Modo de obtención de datos según PDO
+     *
+     * @return object|array|null
      */
-    public function execute()
+    public function execute(string $fetchMode = null)
     {
         // $this->checkTableName();
-        $this->checkConnection();
 
         $returnData = null;
 
@@ -145,53 +143,55 @@ final class Builder
 
         switch ($this->type) {
             case Query::INSERT:
-                $returnData = $this->pdo->prepare($this->getInsertSql())->execute($this->insert);
+                $returnData = $this->exec($this->getInsertSql(), $this->insert);
                 break;
             case Query::UPDATE:
-                $returnData = $this->pdo->query($this->getUpdateSql(false))->execute();
+                $returnData = $this->exec($this->getUpdateSql(false), $this->update);
                 break;
             case Query::DELETE:
-                $returnData = $this->pdo->query($this->getDeleteSql(false))->execute();
+                $returnData = $this->exec($this->getDeleteSql(false));
                 break;
             case Query::SELECT:
             default:
-                $data = [];
-                $result = $this->pdo->query($this->getSelectSql(count($this->counts) > 0, false));
-
-                while ($r = $result->fetch(PDO::FETCH_OBJ)) {
-                    array_push($data, $r);
-                }
-
-                $returnData = $data;
+                $returnData = $this->query($this->getSelectSql(count($this->counts) > 0, false), $fetchMode);
                 break;
         }
 
-        // limpia los residuos de la última consulta
-        $this->selects = [];
-        $this->distinct = false;
-        // $this->limit;
-        $this->counts = [];
-        $this->insert = [];
-        $this->update = [];
-        $this->wheres = [];
-        $this->orderBy = [];
+        $this->cleanBuilder();
 
         return $returnData;
     }
 
     /**
      * Prepara una consulta para obtener el primer resultado
+     * TODO: debe limpiar
      * TODO testear mejor!!
      *
-     * @return object
+     * @param string|null $fetchMode Modo de obtención de datos según PDO
+     *
+     * @return object|array|null
      */
-    public function first()
+    public function first(string $fetchMode = null)
     {
-        $this->type = Query::SELECT;
+        $data = $this->query($this->getSelectSql(count($this->counts) > 0, false), $fetchMode);
+        $this->cleanBuilder();
 
-        $result = $this->pdo->query($this->getSelectSql(count($this->counts) > 0, false));
+        return $data;
+    }
 
-        return $result->fetch(PDO::FETCH_OBJ);
+    /**
+     * Funciona como alias para 'execute', básicamente devuelve resultados en una consulta de tipo SELECT
+     *
+     * @param string|null $fetchMode Modo de obtención de datos según PDO
+     *
+     * @return array
+     */
+    public function get(string $fetchMode = null): array
+    {
+        $data = $this->query($this->getSelectSql(count($this->counts) > 0, false), $fetchMode);
+        $this->cleanBuilder();
+
+        return $data;
     }
 
     /**
@@ -199,12 +199,11 @@ final class Builder
      *
      * @param bool $bind Utilizará binding para la query?
      *
-     * @throws UndefinedTableNameException
      * @return string
      */
     public function toSql(bool $bind = false): string
     {
-        $this->checkTableName();
+        // $this->checkTableName();
 
         switch ($this->type) {
             case Query::INSERT:
@@ -212,10 +211,10 @@ final class Builder
             case Query::UPDATE:
                 return $this->getUpdateSql($bind);
             case Query::DELETE:
-                return $this->getDeleteSql();
+                return $this->getDeleteSql($bind);
             case Query::SELECT:
             default:
-                return $this->getSelectSql(count($this->counts) > 0);
+                return $this->getSelectSql(count($this->counts) > 0, $bind);
         }
     }
 
@@ -229,13 +228,30 @@ final class Builder
     public function select(string ...$statements): self
     {
         $this->selects = [];
+        $this->type = Query::SELECT;
 
         if (count($statements) === 0) {
             $statements = ['*'];
         }
 
-        $this->type = Query::SELECT;
-        $this->selects = Validator::select($statements);
+        foreach ($statements as $statement) {
+            array_push($this->selects, new Select($statement));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Asigna el nombre de la tabla base para el builder, funciona para hacer una query más semántica en una consulta
+     * SELECT y DELETE.
+     *
+     * @param string $table Nombre de la tabla
+     *
+     * @return $this
+     */
+    public function from(string $table): self
+    {
+        $this->table = $table;
 
         return $this;
     }
@@ -250,7 +266,9 @@ final class Builder
     public function addSelect(string ...$statements): self
     {
         $this->type = Query::SELECT;
-        $this->selects = array_merge($this->selects, Validator::select($statements));
+        $this->selects = array_merge($this->selects, array_map(function ($s) {
+            return new Select($s);
+        }, $statements));
 
         return $this;
     }
@@ -293,13 +311,15 @@ final class Builder
     public function count(string ...$statements): self
     {
         $this->counts = [];
+        $this->type = Query::SELECT;
 
         if (count($statements) === 0) {
             $statements = ['*'];
         }
 
-        $this->type = Query::SELECT;
-        $this->counts = Validator::select($statements);
+        foreach ($statements as $statement) {
+            array_push($this->counts, new Select($statement));
+        }
 
         return $this;
     }
@@ -314,7 +334,9 @@ final class Builder
     public function addCount(string ...$statements): self
     {
         $this->type = Query::SELECT;
-        $this->counts = array_merge($this->counts, Validator::select($statements));
+        $this->counts = array_merge($this->counts, array_map(function ($s) {
+            return new Select($s);
+        }, $statements));
 
         return $this;
     }
@@ -328,10 +350,34 @@ final class Builder
      */
     public function insert(array $values): self
     {
+        $this->insert = [];
         $this->type = Query::INSERT;
-        $this->insert = Validator::insert($values);
+
+        // valida que sea un array asociativo
+        if (array_keys($values) !== range(0, count($values) - 1)) {
+            foreach ($values as $i => $value) {
+                array_push($this->insert, new Insert($i, $value));
+            }
+        } else {
+            // TODO: mejorar excepción
+            throw new InvalidArgumentException();
+        }
 
         return $this;
+    }
+
+    /**
+     * Funciona como alias para ejecutar una consulta de tipo insert directamente en una tabla
+     *
+     * @param string $table
+     *
+     * @return bool
+     */
+    public function into(string $table): bool
+    {
+        $this->table = $table;
+
+        return $this->exec($this->getInsertSql(), $this->insert);
     }
 
     /**
@@ -344,7 +390,7 @@ final class Builder
     public function update(array $values): self
     {
         $this->type = Query::UPDATE;
-        $this->update = Validator::insert($values);
+        // $this->update = Validator::insert($values);
 
         return $this;
     }
@@ -362,33 +408,87 @@ final class Builder
     }
 
     /**
-     * Añade un join a la consulta 'SELECT'
+     * Añade un 'INNER JOIN' a la consulta 'SELECT'
      *
-     * @param string $table Nombre de la tabla para hacer 'join'
-     * @param string $condition Condición del 'join'
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
      *
      * @return $this
      */
-    /*
     public function join(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::INNER);
+    }
+
+    /**
+     * Añade un 'INNER JOIN' a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     *
+     * @return $this
+     */
+    public function innerJoin(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::INNER);
+    }
+
+    /**
+     * Añade un 'LEFT JOIN' a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     *
+     * @return $this
+     */
+    public function leftJoin(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::LEFT);
+    }
+
+    /**
+     * Añade un 'RIGHT JOIN' a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     *
+     * @return $this
+     */
+    public function rightJoin(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::RIGHT);
+    }
+
+    /**
+     * Añade un 'OUTER JOIN' a la consulta 'SELECT'
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     *
+     * @return $this
+     */
+    public function outerJoin(string $table, string $condition): self
+    {
+        return $this->baseJoin($table, $condition, Join::OUTER);
+    }
+
+    /**
+     * Define como añadir un 'JOIN' al Builder
+     *
+     * @param string $table Nombre de la tabla para hacer 'JOIN'
+     * @param string $condition Condición del 'JOIN'
+     * @param string $type Tipo de join (definidos en su respectiva clase)
+     *
+     * @return $this
+     */
+    private function baseJoin(string $table, string $condition, string $type): self
     {
         $this->type = Query::SELECT;
 
-        array_push($this->joins, Join::create($table, $condition));
+        array_push($this->joins, new Join($table, $condition, $type));
 
         return $this;
     }
-
-    public function leftJoin(): self
-    {
-        return $this;
-    }
-
-    public function rightJoin(): self
-    {
-        return $this;
-    }
-    */
 
     /**
      * Asigna cláusulas para realizar 'WHERE'
@@ -562,6 +662,16 @@ final class Builder
     }
 
     /**
+     * Obtiene listado de clásusulas 'JOIN'
+     *
+     * @return array
+     */
+    public function getJoins(): array
+    {
+        return $this->joins;
+    }
+
+    /**
      * Obtiene listado de cláusulas 'WHERE'
      *
      * @return array
@@ -582,17 +692,8 @@ final class Builder
     }
 
     /**
-     * Obtiene instancia de PDO usaba en Query Builder
-     *
-     * @return PDO
-     */
-    public function getPDO(): PDO
-    {
-        return $this->pdo;
-    }
-
-    /**
      * Crea una nueva instancia de Query Builder
+     * TODO: no está totalmente estable, se usa solo en docs por ahora
      *
      * @param string $table Nombre de la tabla
      *
@@ -604,18 +705,6 @@ final class Builder
         $builder->setTable($table);
 
         return $builder;
-    }
-
-    /**
-     * Verifica si tiene conexión PDO
-     *
-     * @return void
-     */
-    private function checkConnection(): void
-    {
-        if (!$this->pdo) {
-            $this->pdo = new DefaultConnection();
-        }
     }
 
     /**
@@ -652,6 +741,11 @@ final class Builder
             $this->selects,
             $this->distinct
         );
+
+        // añade 'JOIN'
+        if (count($this->joins) > 0) {
+            $query .= ' ' . $this->grammar->join($this->joins, $bind);
+        }
 
         // añade cláusulas de 'WHERE'
         if (count($this->wheres) > 0) {
@@ -722,6 +816,22 @@ final class Builder
     }
 
     /**
+     * Limpia los campos del query builder para volver a utilizar la instancia en otra consulta
+     */
+    private function cleanBuilder(): void
+    {
+        $this->type = Query::SELECT;
+        $this->selects = [];
+        $this->distinct = false;
+        // $this->limit;
+        $this->counts = [];
+        $this->insert = [];
+        $this->update = [];
+        $this->wheres = [];
+        $this->orderBy = [];
+    }
+
+    /**
      * Valida que existan cláusulas 'WHERE' añadidas
      *
      * @throws Exception
@@ -744,6 +854,27 @@ final class Builder
     {
         if (count(array_filter($this->orderBy)) === 0) {
             throw new Exception();
+        }
+    }
+
+    /**
+     * Ejecuta una operación dentro de una transacción
+     *
+     * @param $transaction
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function transaction($transaction): void
+    {
+        try {
+            $this->beginTransaction();
+            $transaction($this);
+            $this->commit();
+        } catch (\PDOException $e) {
+            $this->rollback();
+            // TODO: make BuilderException o algo así
+            throw new Exception($e->getMessage());
         }
     }
 }

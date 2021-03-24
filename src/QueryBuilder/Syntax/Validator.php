@@ -14,68 +14,6 @@ use QueryBuilder\Types\Where;
  */
 final class Validator
 {
-    // TODO: hacer?
-    // public static function create(){}
-
-    /**
-     * Valida un nuevo 'SELECT' añadido
-     *
-     * @param array $statements Declaraciones a validar
-     *
-     * @return array
-     */
-    public static function select(array $statements)
-    {
-        $columns = [];
-
-        foreach ($statements as $statement) {
-            $statement = trim($statement);
-
-            if (!preg_match(Regex::SELECT, $statement)) {
-                throw new InvalidArgumentException();
-            }
-
-            // en caso de tener alias, se transforma a mayúsculas
-            if (strpos($statement, ' as ')) {
-                $statement = str_replace(' as ', ' AS ', $statement);
-            }
-
-            array_push($columns, $statement);
-        }
-
-        return $columns;
-    }
-
-    /**
-     * Valida un nuevo 'INSERT' añadido
-     *
-     * @param array $values Valores a insertar
-     *
-     * @return array
-     */
-    public static function insert(array $values)
-    {
-        // verifica si es array asociativo
-        if (array_keys($values) !== range(0, count($values) - 1)) {
-            $columns = [];
-
-            foreach ($values as $column => $value) {
-                $column = trim($column);
-
-                if (!preg_match(Regex::COLUMN_NAME, $column)) {
-                    throw new InvalidArgumentException();
-                }
-
-                $columns[$column] = $value;
-            }
-
-            return $columns;
-        } else {
-            // TODO: indicar que no es array asociativo?
-            throw new InvalidArgumentException();
-        }
-    }
-
     /**
      * Valida un nuevo 'WHERE' añadido
      *
