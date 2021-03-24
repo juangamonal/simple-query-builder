@@ -13,6 +13,8 @@ Las guías explican el funcionamiento del Query Builder. Cada apartado ofrece un
 5. [Insert](guides/insert.md)
 6. [Update](guides/update.md)
 7. [Delete](guides/delete.md)
+8. [Join](guides/join.md)
+8. [Transacciones](guides/transacciones.md)
 
 ## API
 

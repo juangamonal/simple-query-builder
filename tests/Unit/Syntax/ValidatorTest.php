@@ -17,32 +17,6 @@ use QueryBuilder\Types\Where;
 final class ValidatorTest extends TestCase
 {
     /**
-     * Prueba la validación de los 'SELECT'
-     *
-     * @return void
-     */
-    public function testSelect()
-    {
-        // prueba que un set de selects sean validados
-        $valid = [
-            'table.column',
-            '*',
-            'with_alias AS alias'
-        ];
-        $this->assertEquals($valid, Validator::select($valid));
-
-        // en caso de recibir un alias, 'as' pasa a ser mayúsculas
-        $original = ['name as full_name', 'email as as'];
-        $valid = ['name AS full_name', 'email AS as'];
-        $this->assertEquals($valid, Validator::select($original));
-
-        // excepción al recibir al menos un valor inválido
-        $invalid = ['invalid syntax'];
-        $this->expectException(InvalidArgumentException::class);
-        Validator::select($invalid);
-    }
-
-    /**
      * Prueba la validación de los 'INSERT'
      *
      * @return void

@@ -7,6 +7,7 @@ use PDO;
 use QueryBuilder\Exceptions\UndefinedTableNameException;
 use QueryBuilder\Grammars\GrammarHandler;
 use QueryBuilder\Syntax\Join;
+use QueryBuilder\Syntax\Select;
 use QueryBuilder\Syntax\Validator;
 use QueryBuilder\Types\Query;
 use QueryBuilder\Types\Where;
@@ -225,13 +226,15 @@ class Builder extends ConnectionHandler
     public function select(string ...$statements): self
     {
         $this->selects = [];
+        $this->type = Query::SELECT;
 
         if (count($statements) === 0) {
             $statements = ['*'];
         }
 
-        $this->type = Query::SELECT;
-        $this->selects = Validator::select($statements);
+        foreach ($statements as $statement) {
+            array_push($this->selects, new Select($statement));
+        }
 
         return $this;
     }
@@ -261,7 +264,9 @@ class Builder extends ConnectionHandler
     public function addSelect(string ...$statements): self
     {
         $this->type = Query::SELECT;
-        $this->selects = array_merge($this->selects, Validator::select($statements));
+        $this->selects = array_merge($this->selects, array_map(function ($s) {
+            return new Select($s);
+        }, $statements));
 
         return $this;
     }
@@ -304,13 +309,15 @@ class Builder extends ConnectionHandler
     public function count(string ...$statements): self
     {
         $this->counts = [];
+        $this->type = Query::SELECT;
 
         if (count($statements) === 0) {
             $statements = ['*'];
         }
 
-        $this->type = Query::SELECT;
-        $this->counts = Validator::select($statements);
+        foreach ($statements as $statement) {
+            array_push($this->counts, new Select($statement));
+        }
 
         return $this;
     }
@@ -325,7 +332,9 @@ class Builder extends ConnectionHandler
     public function addCount(string ...$statements): self
     {
         $this->type = Query::SELECT;
-        $this->counts = array_merge($this->counts, Validator::select($statements));
+        $this->counts = array_merge($this->counts, array_map(function ($s) {
+            return new Select($s);
+        }, $statements));
 
         return $this;
     }

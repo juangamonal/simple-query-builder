@@ -36,13 +36,10 @@ class Grammar
             $query .= ' DISTINCT';
         }
 
-        // parsea 'as' a mayúsuculas
-        foreach ($statements as $i => $statement) {
-            $statements[$i] = str_replace(' as ', ' AS ', $statement);
-        }
-
         // añade columnas
-        $query .= ' ' . implode(', ', $statements);
+        $query .= ' ' . implode(', ', array_map(function ($s) {
+            return $s->getStatement();
+        }, $statements));
 
         // añade 'from'
         $query .= ' FROM ' . $table;
@@ -155,6 +152,7 @@ class Grammar
 
     /**
      * Prepara las cláusulas 'JOIN' para ser concatenada en otra consulta
+     * TODO: bind
      *
      * @param array $joins Listado de uniones a realizar
      * @param bool $bind Utilizará binding para la query

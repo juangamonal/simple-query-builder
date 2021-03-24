@@ -18,35 +18,6 @@ final class Validator
     // public static function create(){}
 
     /**
-     * Valida un nuevo 'SELECT' añadido
-     *
-     * @param array $statements Declaraciones a validar
-     *
-     * @return array
-     */
-    public static function select(array $statements)
-    {
-        $columns = [];
-
-        foreach ($statements as $statement) {
-            $statement = trim($statement);
-
-            if (!preg_match(Regex::SELECT, $statement)) {
-                throw new InvalidArgumentException();
-            }
-
-            // en caso de tener alias, se transforma a mayúsculas
-            if (strpos($statement, ' as ')) {
-                $statement = str_replace(' as ', ' AS ', $statement);
-            }
-
-            array_push($columns, $statement);
-        }
-
-        return $columns;
-    }
-
-    /**
      * Valida un nuevo 'INSERT' añadido
      *
      * @param array $values Valores a insertar

@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use QueryBuilder\Grammar;
 use QueryBuilder\Grammars\MySqlGrammar;
 use QueryBuilder\Syntax\Join;
+use QueryBuilder\Syntax\Select;
 use QueryBuilder\Types\OrderBy;
 use QueryBuilder\Types\Where;
 
@@ -45,12 +46,11 @@ final class GrammarTest extends TestCase
     public function testSelect()
     {
         // prepara un 'SELECT' sencillo
-        $statements = ['email', 'name as full_name'];
+        $statements = [new Select('email'), new Select('name as full_name')];
         $select = 'SELECT email, name AS full_name FROM users';
         $this->assertEquals($select, $this->grammar->select('users', $statements));
 
-        // prepara un 'SELECT' con 'DISTINCT'
-        $statements = ['email as user_email', 'name', 'status'];
+        $statements = [new Select('email as user_email'), new Select('name'), new Select('status')];
         $select = 'SELECT DISTINCT email AS user_email, name, status FROM users';
         $this->assertEquals($select, $this->grammar->select('users', $statements, true));
     }
