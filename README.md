@@ -4,7 +4,10 @@ Simple Query Builder (SQB) es una delgada capa sobre [PDO](https://www.php.net/m
 
 ## Características
 
-TODO: utiliza tal y tal driver, tal version de php y extensiones a usar, etc
+- Compatible con PHP >=7.3.
+- Testeado en MySql, Oracle y SQLite.
+- Extensible a través de `Grammar`.
+- Manejo de transacciones.
 
 ## Instalación
 
@@ -76,13 +79,27 @@ try {
     $builder->setTable('posts')->delete()->where('user.id = 1')->execute();
     
     // más operaciones ...
-
     $builder->commit();
 } catch (\Exception $e) {
     $builder->rollback();
 }
 ```
 
-## Guías
+## Ejemplos
 
-TODO:
+- [SELECT](examples/select.php)
+- ~~INSERT~~
+- ~~UPDATE~~
+- ~~DELETE~~
+- [WHERE](examples/where.php)
+- ~~TRANSACTION~~
+
+## TODO
+
+- Queries RAW.
+- Subqueries.
+- Aggregates.
+
+## Agradecimientos
+
+- [Base de datos Chinook (SQLite)](https://github.com/lerocha/chinook-database/blob/master/ChinookDatabase/DataSources/Chinook_Sqlite.sqlite) utilizada en los ejemplos.

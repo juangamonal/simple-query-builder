@@ -153,6 +153,7 @@ class Builder extends ConnectionHandler
                 break;
             case Query::SELECT:
             default:
+                print_r($this->getSelectSql(count($this->counts) > 0, false));
                 $returnData = $this->query($this->getSelectSql(count($this->counts) > 0, false), $fetchMode);
                 break;
         }
@@ -164,19 +165,17 @@ class Builder extends ConnectionHandler
 
     /**
      * Prepara una consulta para obtener el primer resultado
-     * TODO: debe limpiar
-     * TODO testear mejor!!
      *
      * @param string|null $fetchMode Modo de obtención de datos según PDO
      *
-     * @return object|array|null
+     * @return object|null
      */
     public function first(string $fetchMode = null)
     {
-        $data = $this->query($this->getSelectSql(count($this->counts) > 0, false), $fetchMode);
+        $data = $this->query("{$this->getSelectSql(count($this->counts) > 0, false)} LIMIT 1", $fetchMode);
         $this->cleanBuilder();
 
-        return $data;
+        return count($data) === 1 ? $data[0] : null;
     }
 
     /**
@@ -699,6 +698,7 @@ class Builder extends ConnectionHandler
      *
      * @return self
      */
+    /*
     public static function table(string $table): self
     {
         $builder = new self();
@@ -706,6 +706,7 @@ class Builder extends ConnectionHandler
 
         return $builder;
     }
+    */
 
     /**
      * Verifica si tiene nombre de tabla
