@@ -12,3 +12,4 @@ sami.phar
 !/docs/guides
 tests/.env
 *.sqlite
+:memory
